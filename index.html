@@ -9,8 +9,75 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
             background-color: #f5f5f5;
+        }
+        
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .result-table {
+                font-size: 14px;
+            }
+            
+            .result-table th,
+            .result-table td {
+                padding: 8px 6px;
+            }
+            
+            input[type="number"] {
+                width: 80px;
+                font-size: 14px;
+            }
+            
+            .calc-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px 0;
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            .result-table {
+                font-size: 12px;
+            }
+            
+            .result-table th,
+            .result-table td {
+                padding: 6px 4px;
+            }
+            
+            .cutting-item {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
         }
         
         .container {
@@ -164,6 +231,85 @@
             background-color: #2c5530;
         }
         
+        .print-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 15px 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .print-button:hover {
+            background-color: #218838;
+        }
+        
+        .print-button:before {
+            content: "🖨️";
+        }
+        
+        /* ESTILOS PARA IMPRESSÃO */
+        @media print {
+            body {
+                background: white !important;
+                font-size: 12pt;
+                margin: 0;
+                padding: 10px;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .container {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-inside: avoid;
+            }
+            
+            .print-only {
+                display: block !important;
+            }
+            
+            .result-table {
+                box-shadow: none !important;
+                border: 1px solid #333 !important;
+            }
+            
+            .result-table th {
+                background-color: #f0f0f0 !important;
+                color: #333 !important;
+                border: 1px solid #333 !important;
+            }
+            
+            .result-table td {
+                border: 1px solid #333 !important;
+            }
+            
+            .cutting-item {
+                border: 1px solid #333 !important;
+                background: white !important;
+            }
+            
+            .highlight {
+                background-color: #f5f5f5 !important;
+                color: #000 !important;
+            }
+            
+            h1, h2, h3 {
+                color: #000 !important;
+            }
+        }
+        
         .warning {
             background-color: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -185,17 +331,20 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container no-print">
         <h2>📊 Resumo de Materiais Necessários</h2>
         <div id="summary"></div>
     </div>
 
-    <div class="container">
-        <h2>📋 Detalhamento por Componente</h2>
-        <div id="detailed"></div>
+    <div class="container no-print">
+        <h2>🛒 Lista de Compras - Materiais Necessários</h2>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="print-button" onclick="printShoppingList()">Imprimir Lista de Compras</button>
+        </div>
+        <div id="shopping-list"></div>
     </div>
 
-    <div class="container">
+    <div class="container no-print">
         <h2>✂️ Mapeamento de Corte Otimizado</h2>
         <div id="cutting-map"></div>
     </div>
@@ -253,7 +402,7 @@
             };
 
             displaySummary(results, quantity);
-            displayDetailed(results, quantity);
+            displayShoppingList(results, quantity);
             displayCuttingMap(results, quantity);
         }
 
@@ -428,95 +577,16 @@
             summaryDiv.innerHTML = html;
         }
 
-        function displayDetailed(results, quantity) {
-            const detailedDiv = document.getElementById('detailed');
+        function displayShoppingList(results, quantity) {
+            const shoppingDiv = document.getElementById('shopping-list');
             
-            let html = '';
-            
-            Object.keys(results).forEach(materialType => {
-                const material = results[materialType];
-                const materialName = {
-                    'tecido': 'Tecido Principal',
-                    'forro': 'Forro',
-                    'tela': 'Tela Voley',
-                    'eva': 'EVA'
-                }[materialType];
-
-                html += `
-                    <div class="material-section">
-                        <h3>${materialName}</h3>
+            const html = `
+                <div class="grid">
+                    <div class="card">
+                        <h3>🧵 TECIDOS E MATERIAIS PRINCIPAIS</h3>
                         <table class="result-table">
                             <thead>
                                 <tr>
-                                    <th>Componente</th>
-                                    <th>Dimensões (cm)</th>
-                                    <th>Qtd por Necessaire</th>
-                                    <th>Total (${quantity} unid.)</th>
-                                    <th>Área Total (cm²)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                material.pieces.forEach(piece => {
-                    html += `
-                        <tr>
-                            <td>${piece.nome}</td>
-                            <td>${piece.largura} × ${piece.comprimento}</td>
-                            <td>${piece.quantidade}</td>
-                            <td>${piece.totalQuantidade}</td>
-                            <td>${piece.areaTotal.toLocaleString()}</td>
-                        </tr>
-                    `;
-                });
-
-                html += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            });
-            
-            detailedDiv.innerHTML = html;
-        }
-
-        function displayCuttingMap(results, quantity) {
-            const cuttingDiv = document.getElementById('cutting-map');
-            
-            let html = '';
-            
-            Object.keys(results).forEach(materialType => {
-                const material = results[materialType];
-                const materialName = {
-                    'tecido': 'Tecido Principal (140cm largura)',
-                    'forro': 'Forro (140cm largura)',
-                    'tela': 'Tela Voley (140cm largura)',
-                    'eva': 'EVA (130cm largura)'
-                }[materialType];
-
-                html += `
-                    <div class="cutting-map">
-                        <h3>${materialName}</h3>
-                        <p><strong>Metragem total:</strong> ${material.finalMeters}m | <strong>Aproveitamento:</strong> ${material.layout.efficiency}%</p>
-                `;
-
-                material.layout.rows.forEach((row, index) => {
-                    html += `
-                        <div class="cutting-item">
-                            <strong>Fileira ${index + 1}:</strong> Altura ${row.height}cm | Largura usada: ${row.width}cm<br>
-                            Peças: ${row.pieces.map(p => `${p.nome} (${p.largura}×${p.comprimento})`).join(', ')}
-                        </div>
-                    `;
-                });
-
-                html += '</div>';
-            });
-            
-            cuttingDiv.innerHTML = html;
-        }
-
-        // Calcular automaticamente ao carregar a página
-        calculateMaterials();
-    </script>
-</body>
-</html>
+                                    <th>Material</th>
+                                    <th>Quantidade</th>
+        
