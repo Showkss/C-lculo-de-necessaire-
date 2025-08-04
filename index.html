@@ -589,4 +589,260 @@
                                 <tr>
                                     <th>Material</th>
                                     <th>Quantidade</th>
-        
+                                    <th>Especificação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Tecido Principal</strong></td>
+                                    <td class="highlight">${results.tecido.finalMeters}m</td>
+                                    <td>Largura: 1,40m (qualquer tecido de sua preferência)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tecido para Forro</strong></td>
+                                    <td class="highlight">${results.forro.finalMeters}m</td>
+                                    <td>Largura: 1,40m (algodão cru ou similar)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tela Voley</strong></td>
+                                    <td class="highlight">${results.tela.finalMeters}m</td>
+                                    <td>Largura: 1,40m (para bolsos internos)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>EVA para Estrutura</strong></td>
+                                    <td class="highlight">${results.eva.finalMeters}m</td>
+                                    <td>Largura: 1,30m (espessura: 2-3mm)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>🧷 AVIAMENTOS E ACESSÓRIOS</h3>
+                        <table class="result-table">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Zíper nº5</strong></td>
+                                    <td class="highlight">${(outros.fecho * quantity).toFixed(2)}m</td>
+                                    <td>Qualquer cor de sua preferência</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cursores para Zíper</strong></td>
+                                    <td class="highlight">${outros.cursor * quantity} unidades</td>
+                                    <td>Carrinhos nº5, mesma cor do zíper</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Viés</strong></td>
+                                    <td class="highlight">${(outros.vies * quantity).toFixed(2)}m</td>
+                                    <td>Largura: 2cm, cor combinando</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Vivo para Acabamento</strong></td>
+                                    <td class="highlight">Incluso no tecido principal</td>
+                                    <td>Espessura: 2,5mm (será coberto com tecido)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎀 COMPLEMENTOS OPCIONAIS</h3>
+                        <table class="result-table">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Cadarço para Alça</strong></td>
+                                    <td class="highlight">${(outros.cadaco_alca * quantity).toFixed(2)}m</td>
+                                    <td>Ou use tecido (já incluso na metragem)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Material para Puxadores</strong></td>
+                                    <td class="highlight">${outros.puxador * quantity} tirinhas</td>
+                                    <td>Couro sintético ou tecido (0,5×10cm cada)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cadarço para Freios</strong></td>
+                                    <td class="highlight">${(outros.cadaco_freio * quantity).toFixed(2)}m</td>
+                                    <td>Largura: 30mm ou use tecido (já incluso)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>💡 DICA IMPORTANTE:</strong> Todas as metragens já incluem 8% de margem de segurança. 
+                    As especificações de largura são padrão do mercado brasileiro.
+                </div>
+
+                <div class="material-section" id="printable-checklist">
+                    <h3>📝 CHECKLIST PARA COMPRAS - ${quantity} NECESSAIRE${quantity > 1 ? 'S' : ''}</h3>
+                    <div class="print-only" style="display: none;">
+                        <p><strong>Data:</strong> ___/___/_____ | <strong>Loja:</strong> _________________________</p>
+                        <p><strong>Projeto:</strong> Necessaire | <strong>Quantidade:</strong> ${quantity} unidade${quantity > 1 ? 's' : ''}</p>
+                        <hr>
+                    </div>
+                    <div class="grid">
+                        <div class="cutting-item">
+                            <strong>TECIDOS:</strong><br>
+                            ☐ <strong>${results.tecido.finalMeters}m</strong> de tecido principal (1,40m largura)<br>
+                            ☐ <strong>${results.forro.finalMeters}m</strong> de tecido para forro (1,40m largura)<br>
+                            ☐ <strong>${results.tela.finalMeters}m</strong> de tela voley (1,40m largura)<br>
+                            ☐ <strong>${results.eva.finalMeters}m</strong> de EVA estrutural (1,30m largura)
+                        </div>
+                        <div class="cutting-item">
+                            <strong>AVIAMENTOS:</strong><br>
+                            ☐ <strong>${(outros.fecho * quantity).toFixed(2)}m</strong> de zíper nº5<br>
+                            ☐ <strong>${outros.cursor * quantity}</strong> cursores nº5<br>
+                            ☐ <strong>${(outros.vies * quantity).toFixed(2)}m</strong> de viés 2cm<br>
+                            ☐ Vivo 2,5mm (quantidade conforme preferência)
+                        </div>
+                    </div>
+                    <div class="print-only" style="display: none; margin-top: 20px;">
+                        <p><strong>OBSERVAÇÕES:</strong></p>
+                        <p>□ Verificar qualidade dos materiais</p>
+                        <p>□ Confirmar larguras dos tecidos</p>
+                        <p>□ Testar compatibilidade de cores</p>
+                        <p style="margin-top: 20px;"><strong>TOTAL GASTO:</strong> R$ ___________</p>
+                    </div>
+                </div>
+            `;
+            
+            shoppingDiv.innerHTML = html;
+        }
+
+        function displayCuttingMap(results, quantity) {
+            const cuttingDiv = document.getElementById('cutting-map');
+            
+            let html = '';
+            
+            Object.keys(results).forEach(materialType => {
+                const material = results[materialType];
+                const materialName = {
+                    'tecido': 'Tecido Principal (140cm largura)',
+                    'forro': 'Forro (140cm largura)',
+                    'tela': 'Tela Voley (140cm largura)',
+                    'eva': 'EVA (130cm largura)'
+                }[materialType];
+
+                html += `
+                    <div class="cutting-map">
+                        <h3>${materialName}</h3>
+                        <p><strong>Metragem total:</strong> ${material.finalMeters}m | <strong>Aproveitamento:</strong> ${material.layout.efficiency}%</p>
+                `;
+
+                material.layout.rows.forEach((row, index) => {
+                    html += `
+                        <div class="cutting-item">
+                            <strong>Fileira ${index + 1}:</strong> Altura ${row.height}cm | Largura usada: ${row.width}cm<br>
+                            Peças: ${row.pieces.map(p => `${p.nome} (${p.largura}×${p.comprimento})`).join(', ')}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            });
+            
+            cuttingDiv.innerHTML = html;
+        }
+
+        // Calcular automaticamente ao carregar a página
+        calculateMaterials();
+
+        // Função para imprimir apenas o checklist
+        function printShoppingList() {
+            // Ocultar elementos que não devem ser impressos
+            const noprint = document.querySelectorAll('.no-print');
+            const printonly = document.querySelectorAll('.print-only');
+            
+            // Criar uma nova janela com apenas o conteúdo da lista de compras
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            const listContent = document.getElementById('shopping-list').innerHTML;
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Lista de Compras - Necessaire</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 20px; 
+                            color: #333;
+                            background: white;
+                        }
+                        .grid { 
+                            display: grid; 
+                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+                            gap: 20px; 
+                            margin: 20px 0; 
+                        }
+                        .card { 
+                            border: 1px solid #ddd; 
+                            padding: 15px; 
+                            border-radius: 8px;
+                            background: white;
+                        }
+                        .result-table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin: 15px 0; 
+                            border: 1px solid #333;
+                        }
+                        .result-table th { 
+                            background-color: #f0f0f0; 
+                            padding: 10px; 
+                            border: 1px solid #333;
+                            font-weight: bold;
+                        }
+                        .result-table td { 
+                            padding: 8px 10px; 
+                            border: 1px solid #333;
+                        }
+                        .highlight { 
+                            background-color: #f5f5f5; 
+                            font-weight: bold; 
+                        }
+                        .cutting-item { 
+                            background: #f8f9fa; 
+                            padding: 10px; 
+                            margin: 8px 0; 
+                            border: 1px solid #333;
+                            border-radius: 5px;
+                        }
+                        .material-section {
+                            margin: 20px 0;
+                            padding: 15px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                        }
+                        .warning {
+                            background-color: #fff3cd;
+                            border: 1px solid #ffeaa7;
+                            padding: 10px;
+                            border-radius: 5px;
+                            margin: 15px 0;
+                        }
+                        .print-only { display: block !important; }
+                        h1, h2, h3 { color: #333; margin-top: 0; }
+                        hr { border: none; border-top: 2px solid #333; margin: 15px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h1>🛒 Lista de Compras - Materiais para Necessaire</h1>
+                    ${listContent}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Aguardar carregar e imprimir
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+    </script>
+</body>
+</html>
