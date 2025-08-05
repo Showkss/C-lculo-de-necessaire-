@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Produção de Necessaire - Otimização PRO</title>
+    <title>Calculadora de Produção de Necessaire - Versão Final</title>
     <style>
         :root {
             --cor-primaria: #2c5530;
@@ -53,7 +53,23 @@
         .print-button:hover { background-color: #218838; }
         .print-button:before { content: "🖨️"; }
 
-        /* --- ESTILOS DO MAPA DE CORTE VISUAL E LEGENDA --- */
+        /* --- ESTILOS DO MAPA DE CORTE --- */
+        .cutting-section {
+            border: 2px solid var(--cor-secundaria);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #fafafa;
+        }
+        .cutting-item-descriptive {
+            background: #e8f5e8;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid var(--cor-secundaria);
+            font-size: 14px;
+        }
+
         .cutting-layout-wrapper {
             display: grid;
             grid-template-columns: 1fr;
@@ -68,11 +84,7 @@
         }
 
         .cutting-layout-container {
-            border: 2px solid var(--cor-secundaria);
-            border-radius: 8px;
-            padding: 15px;
-            background-color: #fafafa;
-            overflow-x: auto; /* Garante rolagem em telas muito pequenas */
+            overflow-x: auto;
         }
 
         .cutting-layout {
@@ -106,34 +118,12 @@
             z-index: 10;
         }
 
-        .legend {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            font-size: 14px;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s ease;
-            cursor: default;
-        }
+        .legend { list-style: none; padding: 0; margin: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .legend-item { display: flex; align-items: center; padding: 10px; font-size: 14px; border-bottom: 1px solid #eee; transition: background-color 0.2s ease; cursor: default; }
         .legend-item:last-child { border-bottom: none; }
         .legend-item.highlight { background-color: var(--cor-destaque); }
-        .legend-color-box {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border: 1px solid rgba(0,0,0,0.2);
-            flex-shrink: 0;
-        }
+        .legend-color-box { width: 20px; height: 20px; margin-right: 10px; border: 1px solid rgba(0,0,0,0.2); flex-shrink: 0; }
         
-        /* ESTILOS PARA IMPRESSÃO */
         @media print {
             body { background: white !important; font-size: 12pt; margin: 0; padding: 10px; }
             .no-print { display: none !important; }
@@ -171,7 +161,7 @@
     </div>
 
     <div class="container no-print">
-        <h2>✂️ Mapeamento de Corte Interativo</h2>
+        <h2>✂️ Mapeamento de Corte</h2>
         <div id="cutting-map"></div>
     </div>
 
@@ -224,64 +214,76 @@
         function calculateMaterialNeeds(type, quantity, materialWidth) {
             const items = baseData[type];
             let pieces = [];
+            let totalArea = 0;
             items.forEach(item => {
-                for (let i = 0; i < item.quantidade * quantity; i++) {
+                const totalPieces = item.quantidade * quantity;
+                totalArea += item.largura * item.comprimento * totalPieces;
+                for (let i = 0; i < totalPieces; i++) {
                     pieces.push({ ...item, id: `${type}-${item.nome}-${i}` });
                 }
             });
             const layout = optimizeLayout(pieces, materialWidth);
             const totalLength = layout.totalHeight;
             const finalLength = Math.ceil(totalLength * 1.08);
-            return { totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
+            return { pieces, totalArea, totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
         }
 
         function optimizeLayout(pieces, binWidth) {
+            // Algoritmo de empacotamento com rotação (confiável)
             pieces.sort((a, b) => b.comprimento - a.comprimento || b.largura - a.largura);
-            let spaces = [{ x: 0, y: 0, w: binWidth, h: Infinity }];
             let placedPieces = [];
             let totalHeight = 0;
+            let spaces = [{ x: 0, y: 0, w: binWidth }];
 
             for (const piece of pieces) {
                 let bestFit = null;
-                for (let i = spaces.length - 1; i >= 0; i--) {
+                // Tenta encaixar com e sem rotação
+                const orientations = [
+                    { w: piece.largura, h: piece.comprimento, rotacionada: false },
+                    { w: piece.comprimento, h: piece.largura, rotacionada: true }
+                ];
+
+                for (let i = 0; i < spaces.length; i++) {
                     const space = spaces[i];
-                    const orientations = [
-                        { w: piece.largura, h: piece.comprimento, rotacionada: false },
-                        { w: piece.comprimento, h: piece.largura, rotacionada: true }
-                    ];
                     for (const p of orientations) {
-                        if (p.w <= space.w && p.h <= space.h) {
-                            const score = space.y + p.h;
+                        if (p.w <= space.w) {
+                            const score = space.y + p.h; // Prioriza o menor aumento na altura total
                             if (!bestFit || score < bestFit.score) {
                                 bestFit = { spaceIndex: i, piece: { ...piece, ...p }, score: score, x: space.x, y: space.y };
                             }
                         }
                     }
                 }
+
                 if (bestFit) {
                     const { spaceIndex, piece, x, y } = bestFit;
                     placedPieces.push({ ...piece, x, y });
                     totalHeight = Math.max(totalHeight, y + piece.h);
+                    
                     const space = spaces.splice(spaceIndex, 1)[0];
+                    // Adiciona novo espaço à direita da peça colocada
+                    if (space.w - piece.w > 0) {
+                        spaces.push({ x: x + piece.w, y: y, w: space.w - piece.w });
+                    }
+                    // Adiciona um novo espaço abaixo da peça
+                    spaces.push({ x: 0, y: y + piece.h, w: binWidth });
                     
-                    // Adicionar novos espaços vazios
-                    const rightSpace = { x: x + piece.w, y: y, w: space.w - piece.w, h: piece.h };
-                    if (rightSpace.w > 0) spaces.push(rightSpace);
-                    
-                    const bottomSpace = { x: x, y: y + piece.h, w: space.w, h: space.h - piece.h };
-                    if (bottomSpace.h > 0 && bottomSpace.h < Infinity) spaces.push(bottomSpace);
-
-                    // Simplificar e ordenar espaços
+                    // Consolida e ordena os espaços para o próximo encaixe
+                    spaces = spaces.filter(s => s.w > 0);
                     spaces.sort((a, b) => a.y - b.y || a.x - b.x);
                 }
             }
-            const efficiency = binWidth * totalHeight > 0 ? (placedPieces.reduce((acc, p) => acc + (p.w * p.h), 0) / (binWidth * totalHeight) * 100).toFixed(1) : 0;
+            
+            // Recalcula a altura final com base na peça mais alta
+            totalHeight = placedPieces.reduce((max, p) => Math.max(max, p.y + p.h), 0);
+            const totalPieceArea = placedPieces.reduce((acc, p) => acc + (p.w * p.h), 0);
+            const efficiency = binWidth * totalHeight > 0 ? (totalPieceArea / (binWidth * totalHeight) * 100).toFixed(1) : 0;
+
             return { placedPieces, totalHeight, efficiency };
         }
 
         function displaySummary(results, quantity) {
-            const summaryDiv = document.getElementById('summary');
-            summaryDiv.innerHTML = `
+            document.getElementById('summary').innerHTML = `
                 <table class="result-table">
                     <thead><tr><th>Material</th><th>Metragem Otimizada</th><th>Comprar (c/ margem 8%)</th><th>Aproveitamento</th></tr></thead>
                     <tbody>
@@ -348,15 +350,33 @@
             materials.forEach(material => {
                 if (material.data.layout.totalHeight === 0) return;
 
+                const pieceGroups = {};
+                material.data.layout.placedPieces.forEach(piece => {
+                    if (!pieceGroups[piece.nome]) {
+                        pieceGroups[piece.nome] = { color: colors[Object.keys(pieceGroups).length % colors.length], count: 0, w: piece.largura, h: piece.comprimento };
+                    }
+                    pieceGroups[piece.nome].count++;
+                });
+
+                // --- 1. Mapa Descritivo ---
+                const descriptiveSection = document.createElement('div');
+                descriptiveSection.className = 'cutting-section';
+                descriptiveSection.innerHTML = `<h3>${material.name} - Lista de Corte</h3>`;
+                Object.entries(pieceGroups).forEach(([name, { count, w, h }]) => {
+                    descriptiveSection.innerHTML += `<div class="cutting-item-descriptive"><strong>${count}x</strong> - ${name} (medida: ${w}cm x ${h}cm)</div>`;
+                });
+                cuttingMapDiv.appendChild(descriptiveSection);
+
+                // --- 2. Mapa Visual Interativo ---
+                const visualSection = document.createElement('div');
+                visualSection.className = 'cutting-section';
+                visualSection.innerHTML = `<h3>${material.name} - Mapa Visual</h3>`;
+                
                 const wrapper = document.createElement('div');
                 wrapper.className = 'cutting-layout-wrapper';
 
                 const container = document.createElement('div');
                 container.className = 'cutting-layout-container';
-                
-                const title = document.createElement('h3');
-                title.textContent = `${material.name} (Largura: ${material.data.materialWidth}cm)`;
-                container.appendChild(title);
 
                 const layoutDiv = document.createElement('div');
                 layoutDiv.className = 'cutting-layout';
@@ -365,14 +385,8 @@
 
                 const legendList = document.createElement('ul');
                 legendList.className = 'legend';
-                const pieceGroups = {};
 
                 material.data.layout.placedPieces.forEach(piece => {
-                    if (!pieceGroups[piece.nome]) {
-                        pieceGroups[piece.nome] = { color: colors[Object.keys(pieceGroups).length % colors.length], count: 0 };
-                    }
-                    pieceGroups[piece.nome].count++;
-
                     const pieceDiv = document.createElement('div');
                     pieceDiv.className = 'cutting-piece';
                     pieceDiv.dataset.pieceName = piece.nome;
@@ -381,11 +395,7 @@
                     pieceDiv.style.left = `${piece.x}px`;
                     pieceDiv.style.top = `${piece.y}px`;
                     pieceDiv.style.backgroundColor = pieceGroups[piece.nome].color;
-                    
-                    // Adiciona nome na peça se houver espaço
-                    if (piece.w > 50 && piece.h > 20) {
-                        pieceDiv.textContent = piece.nome;
-                    }
+                    if (piece.w > 50 && piece.h > 20) pieceDiv.textContent = piece.nome;
                     layoutDiv.appendChild(pieceDiv);
                 });
 
@@ -400,18 +410,16 @@
                 container.appendChild(layoutDiv);
                 wrapper.appendChild(container);
                 wrapper.appendChild(legendList);
-                cuttingMapDiv.appendChild(wrapper);
+                visualSection.appendChild(wrapper);
+                cuttingMapDiv.appendChild(visualSection);
 
-                // Adiciona interatividade e responsividade
                 function setupInteractivity() {
                     const allPieces = wrapper.querySelectorAll('.cutting-piece');
                     const allLegendItems = wrapper.querySelectorAll('.legend-item');
-                    
                     const highlight = (name, state) => {
                         allPieces.forEach(p => { if (p.dataset.pieceName === name) p.classList.toggle('highlight', state); });
                         allLegendItems.forEach(l => { if (l.dataset.pieceName === name) l.classList.toggle('highlight', state); });
                     };
-
                     allLegendItems.forEach(item => {
                         item.addEventListener('mouseenter', () => highlight(item.dataset.pieceName, true));
                         item.addEventListener('mouseleave', () => highlight(item.dataset.pieceName, false));
@@ -425,12 +433,12 @@
                 function makeResponsive() {
                     const scale = Math.min(1, container.clientWidth / (material.data.materialWidth + 5));
                     layoutDiv.style.transform = `scale(${scale})`;
-                    container.style.height = `${layoutDiv.offsetHeight * scale + 40}px`;
+                    container.style.height = `${layoutDiv.offsetHeight * scale + 20}px`;
                 }
 
                 setupInteractivity();
                 makeResponsive();
-                window.addEventListener('resize', makeResponsive);
+                new ResizeObserver(makeResponsive).observe(container);
             });
         }
 
