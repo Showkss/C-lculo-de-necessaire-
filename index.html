@@ -198,7 +198,7 @@
             border: 1px solid #dee2e6;
         }
         
-        .cutting-map {
+        .cutting-map-container {
             background: #fff;
             border: 2px solid #4a7c59;
             border-radius: 8px;
@@ -254,55 +254,18 @@
         .print-button:before {
             content: "🖨️";
         }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            margin: 8px 0;
-            padding: 5px;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-
-        .optional-section {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .optional-section h4 {
-            color: #856404;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
         
-        /* ESTILOS PARA IMPRESSÃO - Melhorados */
+        /* ESTILOS PARA IMPRESSÃO */
         @media print {
-            * {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-
             body {
                 background: white !important;
-                font-size: 11pt !important;
-                line-height: 1.3 !important;
-                margin: 0 !important;
-                padding: 10pt !important;
-                font-family: Arial, sans-serif !important;
+                font-size: 12pt;
+                margin: 0;
+                padding: 10px;
             }
             
             .no-print {
                 display: none !important;
-            }
-            
-            .print-only {
-                display: block !important;
             }
             
             .container {
@@ -311,95 +274,39 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 page-break-inside: avoid;
-                background: white !important;
+            }
+            
+            .print-only {
+                display: block !important;
             }
             
             .result-table {
                 box-shadow: none !important;
-                border: 2px solid #333 !important;
-                margin: 10pt 0 !important;
-                page-break-inside: avoid;
+                border: 1px solid #333 !important;
             }
             
             .result-table th {
                 background-color: #f0f0f0 !important;
-                color: #000 !important;
+                color: #333 !important;
                 border: 1px solid #333 !important;
-                font-weight: bold !important;
-                padding: 8pt !important;
             }
             
             .result-table td {
                 border: 1px solid #333 !important;
-                padding: 6pt !important;
-                color: #000 !important;
-            }
-            
-            .highlight {
-                background-color: #f5f5f5 !important;
-                color: #000 !important;
-                font-weight: bold !important;
             }
             
             .cutting-item {
                 border: 1px solid #333 !important;
                 background: white !important;
-                color: #000 !important;
-                margin: 3pt 0 !important;
-                padding: 4pt !important;
             }
             
-            h1, h2, h3, h4 {
+            .highlight {
+                background-color: #f5f5f5 !important;
                 color: #000 !important;
-                page-break-after: avoid;
             }
-
-            h1 {
-                font-size: 18pt !important;
-                margin-bottom: 15pt !important;
-            }
-
-            h2 {
-                font-size: 14pt !important;
-                margin: 15pt 0 10pt 0 !important;
-                border-bottom: 1px solid #000 !important;
-            }
-
-            h3 {
-                font-size: 12pt !important;
-                margin: 10pt 0 5pt 0 !important;
-            }
-
-            .checkbox-item {
-                page-break-inside: avoid;
-                margin: 4pt 0 !important;
-            }
-
-            .checkbox-item input[type="checkbox"] {
-                margin-right: 8pt !important;
-            }
-
-            .optional-section {
-                background-color: #f9f9f9 !important;
-                border: 1px solid #999 !important;
-                margin: 10pt 0 !important;
-                padding: 8pt !important;
-            }
-
-            .optional-section h4 {
+            
+            h1, h2, h3 {
                 color: #000 !important;
-                margin: 0 0 5pt 0 !important;
-            }
-
-            .grid {
-                display: block !important;
-            }
-
-            .card {
-                margin-bottom: 15pt !important;
-                border: 1px solid #ccc !important;
-                padding: 8pt !important;
-                page-break-inside: avoid;
             }
         }
         
@@ -424,30 +331,24 @@
         </div>
     </div>
 
-    <div class="container no-print">
-        <h2>📊 Resumo de Materiais Necessários</h2>
-        <div id="summary"></div>
-    </div>
-
-    <div class="container no-print">
-        <h2>🛒 Lista de Compras - Materiais Necessários</h2>
-        <div style="text-align: center; margin-bottom: 20px;">
-            <button class="print-button" onclick="printShoppingList()">Imprimir Lista de Compras</button>
+    <div id="print-area">
+        <div class="container" id="summary-container">
+            <h2>📊 Resumo de Materiais Necessários</h2>
+            <div id="summary"></div>
         </div>
-        <div id="shopping-list"></div>
+
+        <div class="container" id="shopping-list-container">
+            <h2>🛒 Lista de Compras - Materiais Necessários</h2>
+            <div style="text-align: center; margin-bottom: 20px;" class="no-print">
+                <button class="print-button" onclick="printShoppingList()">Imprimir Lista de Compras</button>
+            </div>
+            <div id="shopping-list"></div>
+        </div>
     </div>
 
     <div class="container no-print">
         <h2>✂️ Mapeamento de Corte Otimizado</h2>
         <div id="cutting-map"></div>
-    </div>
-
-    <!-- Área de impressão da lista de compras (oculta na tela) -->
-    <div id="print-area" style="display: none;">
-        <div class="print-only">
-            <h1 style="text-align: center; margin-bottom: 20pt;">🛒 LISTA DE COMPRAS - NECESSAIRE</h1>
-            <div id="print-shopping-content"></div>
-        </div>
     </div>
 
     <script>
@@ -491,20 +392,6 @@
             cadaco_freio: 0.04 // metros
         };
 
-        // Complementos opcionais
-        const opcionais = {
-            botao_magnetico: 2, // peças
-            etiqueta_personalizada: 1, // peça
-            fita_de_cetim: 0.5, // metros
-            aplique_decorativo: 1, // peça
-            rebite_decorativo: 4, // peças
-            cordao_decorativo: 0.3, // metros
-            velcro: 0.1, // metros
-            elastico: 0.2, // metros
-            fivela_pequena: 1, // peça
-            argola_metalica: 2 // peças
-        };
-
         function calculateMaterials() {
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
             
@@ -524,7 +411,6 @@
         function calculateFabricNeeds(type, quantity) {
             const items = baseData[type];
             const fabricWidth = 140; // cm
-            let totalLength = 0;
             let pieces = [];
 
             items.forEach(item => {
@@ -536,11 +422,8 @@
                 });
             });
 
-            // Calcular aproveitamento otimizado
             const layout = optimizeLayout(pieces, fabricWidth);
-            totalLength = layout.totalLength;
-
-            // Adicionar margem de segurança de 8%
+            const totalLength = layout.totalLength;
             const finalLength = Math.ceil(totalLength * 1.08);
 
             return {
@@ -585,18 +468,15 @@
             let totalHeight = 0;
             let rows = [];
 
-            // Ordenar peças por altura decrescente para melhor aproveitamento
             const sortedPieces = [...pieces].sort((a, b) => b.comprimento - a.comprimento);
 
             sortedPieces.forEach(piece => {
                 for (let i = 0; i < piece.totalQuantidade; i++) {
                     if (currentRowWidth + piece.largura <= fabricWidth) {
-                        // Cabe na linha atual
                         currentRow.push({...piece, index: i + 1});
                         currentRowWidth += piece.largura;
                         currentRowHeight = Math.max(currentRowHeight, piece.comprimento);
                     } else {
-                        // Nova linha
                         if (currentRow.length > 0) {
                             rows.push({
                                 pieces: [...currentRow],
@@ -612,7 +492,6 @@
                 }
             });
 
-            // Adicionar última linha
             if (currentRow.length > 0) {
                 rows.push({
                     pieces: [...currentRow],
@@ -707,81 +586,76 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>Tecido Principal (140cm largura)</td><td class="highlight">${results.tecido.finalMeters}m</td></tr>
-                                <tr><td>Forro (140cm largura)</td><td class="highlight">${results.forro.finalMeters}m</td></tr>
-                                <tr><td>Tela Voley (140cm largura)</td><td class="highlight">${results.tela.finalMeters}m</td></tr>
+                                <tr><td>Tecido Principal</td><td class="highlight">${results.tecido.finalMeters}m</td></tr>
+                                <tr><td>Forro</td><td class="highlight">${results.forro.finalMeters}m</td></tr>
+                                <tr><td>Tela Voley</td><td class="highlight">${results.tela.finalMeters}m</td></tr>
                                 <tr><td>EVA (130cm largura)</td><td class="highlight">${results.eva.finalMeters}m</td></tr>
                             </tbody>
                         </table>
                     </div>
-
                     <div class="card">
-                        <h3>🔧 AVIAMENTOS ESSENCIAIS</h3>
+                        <h3>✨ AVIAMENTOS E OUTROS</h3>
                         <table class="result-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantidade</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <tr><td>Fecho nº5</td><td class="highlight">${(outros.fecho * quantity).toFixed(2)}m</td></tr>
                                 <tr><td>Cursores (carrinhos)</td><td class="highlight">${outros.cursor * quantity} peças</td></tr>
                                 <tr><td>Viés</td><td class="highlight">${(outros.vies * quantity).toFixed(2)}m</td></tr>
                                 <tr><td>Cadarço para alça</td><td class="highlight">${(outros.cadaco_alca * quantity).toFixed(2)}m</td></tr>
-                                <tr><td>Puxadores (tirinhas 0.5x10cm)</td><td class="highlight">${outros.puxador * quantity} peças</td></tr>
+                                <tr><td>Puxadores (tirinhas)</td><td class="highlight">${outros.puxador * quantity} peças</td></tr>
                                 <tr><td>Cadarço para freios</td><td class="highlight">${(outros.cadaco_freio * quantity).toFixed(2)}m</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                <div class="optional-section">
-                    <h4>✨ COMPLEMENTOS OPCIONAIS (Selecione conforme desejado)</h4>
-                    <div class="grid">
-                        <div class="card">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="botao_magnetico">
-                                <label for="botao_magnetico">Botão Magnético - ${opcionais.botao_magnetico * quantity} peças</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="etiqueta_personalizada">
-                                <label for="etiqueta_personalizada">Etiqueta Personalizada - ${opcionais.etiqueta_personalizada * quantity} peça(s)</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="fita_cetim">
-                                <label for="fita_cetim">Fita de Cetim - ${(opcionais.fita_de_cetim * quantity).toFixed(2)}m</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="aplique_decorativo">
-                                <label for="aplique_decorativo">Aplique Decorativo - ${opcionais.aplique_decorativo * quantity} peça(s)</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="rebite_decorativo">
-                                <label for="rebite_decorativo">Rebite Decorativo - ${opcionais.rebite_decorativo * quantity} peças</label>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="cordao_decorativo">
-                                <label for="cordao_decorativo">Cordão Decorativo - ${(opcionais.cordao_decorativo * quantity).toFixed(2)}m</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="velcro">
-                                <label for="velcro">Velcro - ${(opcionais.velcro * quantity).toFixed(2)}m</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="elastico">
-                                <label for="elastico">Elástico - ${(opcionais.elastico * quantity).toFixed(2)}m</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="fivela_pequena">
-                                <label for="fivela_pequena">Fivela Pequena - ${opcionais.fivela_pequena * quantity} peça(s)</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="argola_metalica">
-                                <label for="argola_metalica">Argola Metálica - ${opcionais.argola_metalica * quantity} peças</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             `;
-            
             shoppingDiv.innerHTML = html;
         }
 
         function displayCuttingMap(results, quantity) {
+            const cuttingMapDiv = document.getElementById('cutting-map');
+            let html = `<p>Para produzir <strong>${quantity} necessaire${quantity > 1 ? 's' : ''}</strong>, corte as seguintes peças:</p>`;
+
+            const materials = [
+                { name: 'Tecido Principal', data: results.tecido },
+                { name: 'Forro', data: results.forro },
+                { name: 'Tela Voley', data: results.tela },
+                { name: 'EVA', data: results.eva }
+            ];
+
+            materials.forEach(material => {
+                html += `
+                    <div class="cutting-map-container">
+                        <h3>${material.name}</h3>
+                        <p>Metragem total (com margem): <strong>${material.data.finalMeters}m</strong></p>
+                `;
+                material.data.pieces.forEach(piece => {
+                    if (piece.totalQuantidade > 0) {
+                        html += `
+                            <div class="cutting-item">
+                                <strong>${piece.totalQuantidade}x</strong> - ${piece.nome} 
+                                (medida: ${piece.largura}cm x ${piece.comprimento}cm)
+                            </div>
+                        `;
+                    }
+                });
+                html += `</div>`;
+            });
+
+            cuttingMapDiv.innerHTML = html;
+        }
+
+        function printShoppingList() {
+            window.print();
+        }
+
+        // Calcular ao carregar a página
+        document.addEventListener('DOMContentLoaded', calculateMaterials);
+    </script>
+</body>
+</html>
