@@ -181,7 +181,7 @@
         }
 
         function optimizeLayout(pieces, binWidth) {
-            let bins = [{ width: binWidth, height: Infinity, freeRects: [{ x: 0, y: 0, width: binWidth, height: Infinity }] }];
+            let freeRects = [{ x: 0, y: 0, width: binWidth, height: Infinity }];
             let placedPieces = [];
             let totalHeight = 0;
 
@@ -191,8 +191,8 @@
                                      [{ w: piece.largura, h: piece.comprimento, rotacionada: false }, { w: piece.comprimento, h: piece.largura, rotacionada: true }];
 
                 for (const p of orientations) {
-                    for (let i = 0; i < bins[0].freeRects.length; i++) {
-                        const rect = bins[0].freeRects[i];
+                    for (let i = 0; i < freeRects.length; i++) {
+                        const rect = freeRects[i];
                         if (p.w <= rect.width && p.h <= rect.height) {
                             const score = rect.y + p.h;
                             if (score < bestFit.score) {
@@ -203,33 +203,39 @@
                 }
 
                 if (bestFit.rectIndex !== undefined) {
-                    const { rectIndex, piece, x, y } = bestFit;
+                    const { piece, x, y } = bestFit;
                     placedPieces.push({ ...piece, x, y });
                     totalHeight = Math.max(totalHeight, y + piece.h);
                     
-                    const oldRect = bins[0].freeRects.splice(rectIndex, 1)[0];
-                    const splitHorizontally = (target, p) => {
-                        const newRects = [];
-                        if (p.y > target.y) newRects.push({x: target.x, y: target.y, width: target.width, height: p.y - target.y});
-                        if (p.y + p.h < target.y + target.height) newRects.push({x: target.x, y: p.y + p.h, width: target.width, height: (target.y + target.height) - (p.y + p.h)});
-                        if (p.x > target.x) newRects.push({x: target.x, y: p.y, width: p.x - target.x, height: p.h});
-                        if (p.x + p.w < target.x + target.width) newRects.push({x: p.x + p.w, y: p.y, width: (target.x + target.width) - (p.x + p.w), height: p.h});
-                        return newRects;
-                    };
-
-                    for (let i = bins[0].freeRects.length - 1; i >= 0; i--) {
-                        const rect = bins[0].freeRects[i];
-                        const intersection = !(rect.x >= x + piece.w || rect.x + rect.width <= x || rect.y >= y + piece.h || rect.y + rect.height <= y);
-                        if (intersection) {
-                            bins[0].freeRects.splice(i, 1);
-                            bins[0].freeRects.push(...splitHorizontally(rect, {x, y, w: piece.w, h: piece.h}));
+                    const newPieceRect = { x, y, w: piece.w, h: piece.h };
+                    for (let i = freeRects.length - 1; i >= 0; i--) {
+                        if (isIntersecting(freeRects[i], newPieceRect)) {
+                            const oldRect = freeRects.splice(i, 1)[0];
+                            freeRects.push(...splitRect(oldRect, newPieceRect));
                         }
                     }
-                    
-                    bins[0].freeRects = bins[0].freeRects.filter((r1, i1) => !bins[0].freeRects.some((r2, i2) => i1 !== i2 && r2.x <= r1.x && r2.y <= r1.y && r2.x + r2.width >= r1.x + r1.width && r2.y + r2.height >= r1.y + r1.height));
-                    bins[0].freeRects.sort((a, b) => a.y - b.y || a.x - b.x);
+                    pruneRects();
                 }
             }
+
+            function isIntersecting(r1, r2) {
+                return !(r2.x >= r1.x + r1.width || r2.x + r2.w <= r1.x || r2.y >= r1.y + r1.height || r2.y + r2.h <= r1.y);
+            }
+
+            function splitRect(free, placed) {
+                const newRects = [];
+                if (placed.y > free.y) newRects.push({ x: free.x, y: free.y, width: free.width, height: placed.y - free.y });
+                if (placed.y + placed.h < free.y + free.height) newRects.push({ x: free.x, y: placed.y + placed.h, width: free.width, height: (free.y + free.height) - (placed.y + placed.h) });
+                if (placed.x > free.x) newRects.push({ x: free.x, y: placed.y, width: placed.x - free.x, height: placed.h });
+                if (placed.x + placed.w < free.x + free.width) newRects.push({ x: placed.x + placed.w, y: placed.y, width: (free.x + free.width) - (placed.x + placed.w), height: placed.h });
+                return newRects;
+            }
+
+            function pruneRects() {
+                freeRects = freeRects.filter((r1, i1) => !freeRects.some((r2, i2) => i1 !== i2 && r2.x <= r1.x && r2.y <= r1.y && r2.x + r2.width >= r1.x + r1.width && r2.y + r2.height >= r1.y + r1.height));
+                freeRects.sort((a, b) => a.y - b.y || a.x - b.x);
+            }
+
             const totalPieceArea = placedPieces.reduce((acc, p) => acc + (p.w * p.h), 0);
             const efficiency = binWidth * totalHeight > 0 ? (totalPieceArea / (binWidth * totalHeight) * 100).toFixed(1) : 0;
             return { placedPieces, totalHeight, efficiency };
@@ -389,4 +395,16 @@
                 canvas.addEventListener('mouseleave', () => { hGuide.style.display = 'none'; vGuide.style.display = 'none'; infoBox.style.display = 'none'; highlight(null, false); });
                 allPieces.forEach(p => {
                     p.addEventListener('mouseenter', e => {
-                        highlight(p.dataset
+                        highlight(p.dataset.pieceName, true);
+                        infoBox.innerHTML = `<strong>${p.dataset.pieceName}</strong><br>
+                                             Dim: ${(parseFloat(p.style.width)/scale).toFixed(1)} x ${(parseFloat(p.style.height)/scale).toFixed(1)} cm<br>
+                                             Pos: X:${(parseFloat(p.style.left)/scale).toFixed(1)}, Y:${(parseFloat(p.style.top)/scale).toFixed(1)}`;
+                    });
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', calculateMaterials);
+    </script>
+</body>
+</html>
