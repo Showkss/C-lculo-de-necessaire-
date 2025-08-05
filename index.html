@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Produção de Necessaire - Otimização Avançada</title>
+    <title>Calculadora de Produção de Necessaire - Otimização PRO</title>
     <style>
         :root {
             --cor-primaria: #2c5530;
@@ -29,158 +29,58 @@
             margin-bottom: 20px;
         }
         
-        h1 {
-            color: var(--cor-primaria);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
+        h1 { color: var(--cor-primaria); text-align: center; margin-bottom: 30px; font-size: 28px; }
+        h2 { color: var(--cor-secundaria); border-bottom: 2px solid var(--cor-secundaria); padding-bottom: 10px; margin-top: 30px; }
+        h3 { color: #5d8b6a; margin-top: 20px; }
         
-        h2 {
-            color: var(--cor-secundaria);
-            border-bottom: 2px solid var(--cor-secundaria);
-            padding-bottom: 10px;
-            margin-top: 30px;
-        }
+        .input-group { margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--cor-secundaria); }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--cor-primaria); }
+        input[type="number"] { width: 100px; padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
+        input[type="number"]:focus { outline: none; border-color: var(--cor-secundaria); }
         
-        h3 {
-            color: #5d8b6a;
-            margin-top: 20px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         
-        .input-group {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid var(--cor-secundaria);
-        }
+        .result-table { width: 100%; border-collapse: collapse; margin: 15px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .result-table th { background-color: var(--cor-secundaria); color: var(--cor-texto-claro); padding: 12px; text-align: left; font-weight: bold; }
+        .result-table td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .highlight { background-color: var(--cor-destaque); font-weight: bold; color: var(--cor-primaria); }
         
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: var(--cor-primaria);
-        }
+        .calc-button { background-color: var(--cor-secundaria); color: var(--cor-texto-claro); border: none; padding: 12px 25px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; margin: 10px 5px; }
+        .calc-button:hover { background-color: var(--cor-primaria); }
         
-        input[type="number"] {
-            width: 100px;
-            padding: 8px 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="number"]:focus {
-            outline: none;
-            border-color: var(--cor-secundaria);
-        }
-        
-        .grid {
+        .print-button { background-color: #28a745; color: var(--cor-texto-claro); border: none; padding: 12px 25px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; margin: 15px 5px; display: inline-flex; align-items: center; gap: 8px; }
+        .print-button:hover { background-color: #218838; }
+        .print-button:before { content: "🖨️"; }
+
+        /* --- ESTILOS DO MAPA DE CORTE VISUAL E LEGENDA --- */
+        .cutting-layout-wrapper {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr;
             gap: 20px;
-            margin: 20px 0;
+            margin-top: 20px;
+            align-items: flex-start;
         }
-        
-        .card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .result-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .result-table th {
-            background-color: var(--cor-secundaria);
-            color: var(--cor-texto-claro);
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-        }
-        
-        .result-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .result-table tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .highlight {
-            background-color: var(--cor-destaque);
-            font-weight: bold;
-            color: var(--cor-primaria);
-        }
-        
-        .calc-button {
-            background-color: var(--cor-secundaria);
-            color: var(--cor-texto-claro);
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 10px 5px;
-        }
-        
-        .calc-button:hover {
-            background-color: var(--cor-primaria);
-        }
-        
-        .print-button {
-            background-color: #28a745;
-            color: var(--cor-texto-claro);
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 15px 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .print-button:hover {
-            background-color: #218838;
-        }
-        
-        .print-button:before {
-            content: "🖨️";
+        @media (min-width: 992px) {
+            .cutting-layout-wrapper {
+                grid-template-columns: 3fr 1fr;
+            }
         }
 
-        /* --- ESTILOS DO MAPA DE CORTE VISUAL --- */
         .cutting-layout-container {
             border: 2px solid var(--cor-secundaria);
             border-radius: 8px;
             padding: 15px;
-            margin-top: 15px;
             background-color: #fafafa;
+            overflow-x: auto; /* Garante rolagem em telas muito pequenas */
         }
 
         .cutting-layout {
             position: relative;
             background: #f0f0f0;
             border: 1px dashed #ccc;
-            overflow: hidden;
-            margin-top: 10px;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
         }
 
         .cutting-piece {
@@ -190,88 +90,65 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            color: var(--cor-primaria);
+            font-size: 11px;
+            font-weight: bold;
+            color: rgba(0,0,0,0.7);
             text-align: center;
             overflow: hidden;
-            white-space: nowrap;
-            cursor: help;
-        }
-
-        .cutting-piece .tooltip {
-            visibility: hidden;
-            width: 180px;
-            background-color: var(--cor-primaria);
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 110%;
-            left: 50%;
-            margin-left: -90px;
-            opacity: 0;
-            transition: opacity 0.3s;
             white-space: normal;
+            word-break: break-word;
+            padding: 2px;
+            transition: filter 0.2s ease, box-shadow 0.2s ease;
+        }
+        .cutting-piece.highlight {
+            filter: brightness(1.15);
+            box-shadow: 0 0 8px 2px yellow;
+            z-index: 10;
         }
 
-        .cutting-piece:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
+        .legend {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+            cursor: default;
+        }
+        .legend-item:last-child { border-bottom: none; }
+        .legend-item.highlight { background-color: var(--cor-destaque); }
+        .legend-color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
         
         /* ESTILOS PARA IMPRESSÃO */
         @media print {
-            body {
-                background: white !important;
-                font-size: 12pt;
-                margin: 0;
-                padding: 10px;
-            }
-            
-            .no-print {
-                display: none !important;
-            }
-            
-            .container {
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                page-break-inside: avoid;
-            }
-            
-            .result-table {
-                box-shadow: none !important;
-                border: 1px solid #333 !important;
-            }
-            
-            .result-table th {
-                background-color: #f0f0f0 !important;
-                color: #333 !important;
-                border: 1px solid #333 !important;
-            }
-            
-            .result-table td {
-                border: 1px solid #333 !important;
-            }
-            
-            .highlight {
-                background-color: #f5f5f5 !important;
-                color: #000 !important;
-            }
-            
-            h1, h2, h3 {
-                color: #000 !important;
-            }
+            body { background: white !important; font-size: 12pt; margin: 0; padding: 10px; }
+            .no-print { display: none !important; }
+            .container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; page-break-inside: avoid; }
+            .result-table { box-shadow: none !important; border: 1px solid #333 !important; }
+            .result-table th { background-color: #f0f0f0 !important; color: #333 !important; border: 1px solid #333 !important; }
+            .result-table td { border: 1px solid #333 !important; }
+            .highlight { background-color: #f5f5f5 !important; color: #000 !important; }
+            h1, h2, h3 { color: #000 !important; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🧵 Calculadora de Produção de Necessaire</h1>
-        
         <div class="input-group">
             <label for="quantity">Quantidade de Necessaires a Produzir:</label>
             <input type="number" id="quantity" min="1" value="1" onchange="calculateMaterials()">
@@ -284,23 +161,21 @@
             <h2>📊 Resumo de Materiais Necessários</h2>
             <div id="summary"></div>
         </div>
-
         <div class="container" id="shopping-list-container">
             <h2>🛒 Lista de Compras</h2>
             <div style="text-align: center; margin-bottom: 20px;" class="no-print">
-                <button class="print-button" onclick="printShoppingList()">Imprimir Lista de Compras</button>
+                <button class="print-button" onclick="window.print()">Imprimir Lista de Compras</button>
             </div>
             <div id="shopping-list"></div>
         </div>
     </div>
 
     <div class="container no-print">
-        <h2>✂️ Mapeamento de Corte Otimizado (com Rotação)</h2>
+        <h2>✂️ Mapeamento de Corte Interativo</h2>
         <div id="cutting-map"></div>
     </div>
 
     <script>
-        // Dados base para 1 necessaire
         const baseData = {
             tecido: [
                 {nome: 'Corpo atrás', largura: 15, comprimento: 26, quantidade: 1},
@@ -309,9 +184,9 @@
                 {nome: 'Fundo', largura: 14, comprimento: 42, quantidade: 1},
                 {nome: 'Faixa de zíper', largura: 7, comprimento: 42, quantidade: 2},
                 {nome: 'Faixa para vivo', largura: 3, comprimento: 82, quantidade: 2},
-                {nome: 'Alça de mão (opcional)', largura: 5, comprimento: 25, quantidade: 1},
+                {nome: 'Alça de mão', largura: 5, comprimento: 25, quantidade: 1},
                 {nome: 'Freios zíper bolsos', largura: 3, comprimento: 4, quantidade: 8},
-                {nome: 'Freios zíper fole (opcional)', largura: 5, comprimento: 4, quantidade: 1}
+                {nome: 'Freios zíper fole', largura: 5, comprimento: 4, quantidade: 1}
             ],
             forro: [
                 {nome: 'Corpo atrás', largura: 15, comprimento: 26, quantidade: 3},
@@ -331,26 +206,16 @@
                 {nome: 'Estrutura lateral', largura: 3, comprimento: 38, quantidade: 2}
             ]
         };
-
-        const outros = {
-            fecho: 1.0,
-            cursor: 4,
-            vies: 2.05,
-            cadaco_alca: 0.23,
-            puxador: 4,
-            cadaco_freio: 0.04
-        };
+        const outros = { fecho: 1.0, cursor: 4, vies: 2.05, cadaco_alca: 0.23, puxador: 4, cadaco_freio: 0.04 };
 
         function calculateMaterials() {
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
-            
             const results = {
                 tecido: calculateMaterialNeeds('tecido', quantity, 140),
                 forro: calculateMaterialNeeds('forro', quantity, 140),
                 tela: calculateMaterialNeeds('tela', quantity, 140),
                 eva: calculateMaterialNeeds('eva', quantity, 130)
             };
-
             displaySummary(results, quantity);
             displayShoppingList(results, quantity);
             displayCuttingMap(results);
@@ -359,123 +224,71 @@
         function calculateMaterialNeeds(type, quantity, materialWidth) {
             const items = baseData[type];
             let pieces = [];
-            let totalArea = 0;
-
             items.forEach(item => {
-                const totalPieces = item.quantidade * quantity;
-                totalArea += item.largura * item.comprimento * totalPieces;
-                for (let i = 0; i < totalPieces; i++) {
-                    pieces.push({ ...item, id: `${item.nome}_${i}` });
+                for (let i = 0; i < item.quantidade * quantity; i++) {
+                    pieces.push({ ...item, id: `${type}-${item.nome}-${i}` });
                 }
             });
-
             const layout = optimizeLayout(pieces, materialWidth);
             const totalLength = layout.totalHeight;
             const finalLength = Math.ceil(totalLength * 1.08);
-
-            return {
-                totalArea: totalArea,
-                totalLength: totalLength,
-                finalLength: finalLength,
-                finalMeters: (finalLength / 100).toFixed(2),
-                layout: layout,
-                materialWidth: materialWidth
-            };
+            return { totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
         }
 
         function optimizeLayout(pieces, binWidth) {
-            // Algoritmo de empacotamento 2D com rotação (baseado em Bin Packing)
-            pieces.sort((a, b) => Math.max(b.largura, b.comprimento) - Math.max(a.largura, a.comprimento));
-
-            let bins = [{ width: binWidth, height: Infinity, nodes: [{ x: 0, y: 0, w: binWidth, h: Infinity }] }];
+            pieces.sort((a, b) => b.comprimento - a.comprimento || b.largura - a.largura);
+            let spaces = [{ x: 0, y: 0, w: binWidth, h: Infinity }];
             let placedPieces = [];
             let totalHeight = 0;
 
             for (const piece of pieces) {
                 let bestFit = null;
-
-                for (let i = 0; i < bins[0].nodes.length; i++) {
-                    const node = bins[0].nodes[i];
-                    
-                    // Tenta encaixar sem rotação
-                    if (piece.largura <= node.w && piece.comprimento <= node.h) {
-                        const score = Math.min(node.w - piece.largura, node.h - piece.comprimento);
-                        if (!bestFit || score < bestFit.score) {
-                            bestFit = { nodeIndex: i, piece: { ...piece, rotacionada: false }, score: score };
-                        }
-                    }
-
-                    // Tenta encaixar com rotação
-                    if (piece.comprimento <= node.w && piece.largura <= node.h) {
-                         const score = Math.min(node.w - piece.comprimento, node.h - piece.largura);
-                         if (!bestFit || score < bestFit.score) {
-                            bestFit = { nodeIndex: i, piece: { ...piece, rotacionada: true }, score: score };
+                for (let i = spaces.length - 1; i >= 0; i--) {
+                    const space = spaces[i];
+                    const orientations = [
+                        { w: piece.largura, h: piece.comprimento, rotacionada: false },
+                        { w: piece.comprimento, h: piece.largura, rotacionada: true }
+                    ];
+                    for (const p of orientations) {
+                        if (p.w <= space.w && p.h <= space.h) {
+                            const score = space.y + p.h;
+                            if (!bestFit || score < bestFit.score) {
+                                bestFit = { spaceIndex: i, piece: { ...piece, ...p }, score: score, x: space.x, y: space.y };
+                            }
                         }
                     }
                 }
-
                 if (bestFit) {
-                    const node = bins[0].nodes.splice(bestFit.nodeIndex, 1)[0];
-                    const p = bestFit.piece;
-                    const w = p.rotacionada ? p.comprimento : p.largura;
-                    const h = p.rotacionada ? p.largura : p.comprimento;
+                    const { spaceIndex, piece, x, y } = bestFit;
+                    placedPieces.push({ ...piece, x, y });
+                    totalHeight = Math.max(totalHeight, y + piece.h);
+                    const space = spaces.splice(spaceIndex, 1)[0];
+                    
+                    // Adicionar novos espaços vazios
+                    const rightSpace = { x: x + piece.w, y: y, w: space.w - piece.w, h: piece.h };
+                    if (rightSpace.w > 0) spaces.push(rightSpace);
+                    
+                    const bottomSpace = { x: x, y: y + piece.h, w: space.w, h: space.h - piece.h };
+                    if (bottomSpace.h > 0 && bottomSpace.h < Infinity) spaces.push(bottomSpace);
 
-                    placedPieces.push({ ...p, x: node.x, y: node.y, w: w, h: h });
-                    totalHeight = Math.max(totalHeight, node.y + h);
-
-                    // Adiciona novos nós para os espaços restantes
-                    bins[0].nodes.push({ x: node.x + w, y: node.y, w: node.w - w, h: h });
-                    bins[0].nodes.push({ x: node.x, y: node.y + h, w: node.w, h: node.h - h });
-
-                    // Simplifica os nós (remove nós contidos em outros)
-                    bins[0].nodes = bins[0].nodes.filter(n => n.w > 0 && n.h > 0);
-                } else {
-                     console.error("Não foi possível encaixar a peça:", piece);
+                    // Simplificar e ordenar espaços
+                    spaces.sort((a, b) => a.y - b.y || a.x - b.x);
                 }
             }
-            
             const efficiency = binWidth * totalHeight > 0 ? (placedPieces.reduce((acc, p) => acc + (p.w * p.h), 0) / (binWidth * totalHeight) * 100).toFixed(1) : 0;
-
             return { placedPieces, totalHeight, efficiency };
         }
 
         function displaySummary(results, quantity) {
             const summaryDiv = document.getElementById('summary');
-            const html = `
+            summaryDiv.innerHTML = `
                 <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th>Material</th>
-                            <th>Metragem Otimizada</th>
-                            <th>Comprar (com margem 8%)</th>
-                            <th>Aproveitamento</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Material</th><th>Metragem Otimizada</th><th>Comprar (c/ margem 8%)</th><th>Aproveitamento</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td>Tecido Principal</td>
-                            <td>${(results.tecido.totalLength/100).toFixed(2)}m</td>
-                            <td class="highlight">${results.tecido.finalMeters}m</td>
-                            <td>${results.tecido.layout.efficiency}%</td>
-                        </tr>
-                        <tr>
-                            <td>Forro</td>
-                            <td>${(results.forro.totalLength/100).toFixed(2)}m</td>
-                            <td class="highlight">${results.forro.finalMeters}m</td>
-                            <td>${results.forro.layout.efficiency}%</td>
-                        </tr>
-                        <tr>
-                            <td>Tela Voley</td>
-                            <td>${(results.tela.totalLength/100).toFixed(2)}m</td>
-                            <td class="highlight">${results.tela.finalMeters}m</td>
-                            <td>${results.tela.layout.efficiency}%</td>
-                        </tr>
-                        <tr>
-                            <td>EVA</td>
-                            <td>${(results.eva.totalLength/100).toFixed(2)}m</td>
-                            <td class="highlight">${results.eva.finalMeters}m</td>
-                            <td>${results.eva.layout.efficiency}%</td>
-                        </tr>
+                        <tr><td>Tecido Principal</td><td>${(results.tecido.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.tecido.finalMeters}m</td><td>${results.tecido.layout.efficiency}%</td></tr>
+                        <tr><td>Forro</td><td>${(results.forro.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.forro.finalMeters}m</td><td>${results.forro.layout.efficiency}%</td></tr>
+                        <tr><td>Tela Voley</td><td>${(results.tela.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.tela.finalMeters}m</td><td>${results.tela.layout.efficiency}%</td></tr>
+                        <tr><td>EVA</td><td>${(results.eva.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.eva.finalMeters}m</td><td>${results.eva.layout.efficiency}%</td></tr>
                     </tbody>
                 </table>
                 <h3>Outros Materiais (para ${quantity} necessaire${quantity > 1 ? 's' : ''})</h3>
@@ -489,12 +302,10 @@
                         <tr><td>Cadarço para freios</td><td class="highlight">${(outros.cadaco_freio * quantity).toFixed(2)}m</td></tr>
                     </tbody>
                 </table>`;
-            summaryDiv.innerHTML = html;
         }
 
         function displayShoppingList(results, quantity) {
-            const shoppingDiv = document.getElementById('shopping-list');
-            const html = `
+            document.getElementById('shopping-list').innerHTML = `
                 <div class="grid">
                     <div class="card">
                         <h3>🧵 Tecidos e Estrutura</h3>
@@ -523,25 +334,22 @@
                         </table>
                     </div>
                 </div>`;
-            shoppingDiv.innerHTML = html;
         }
 
         function displayCuttingMap(results) {
             const cuttingMapDiv = document.getElementById('cutting-map');
             cuttingMapDiv.innerHTML = '';
-
             const materials = [
-                { name: 'Tecido Principal', data: results.tecido },
-                { name: 'Forro', data: results.forro },
-                { name: 'Tela Voley', data: results.tela },
-                { name: 'EVA', data: results.eva }
+                { name: 'Tecido Principal', data: results.tecido }, { name: 'Forro', data: results.forro },
+                { name: 'Tela Voley', data: results.tela }, { name: 'EVA', data: results.eva }
             ];
-
-            const colors = ['#a8d8b4', '#f5d79e', '#a1c9f4', '#f4a1b9', '#c3a1f4', '#f4b9a1', '#f7c8a0', '#a0d9f7'];
-            let colorIndex = 0;
+            const colors = ['#a8d8b4', '#f5d79e', '#a1c9f4', '#f4a1b9', '#c3a1f4', '#f4b9a1', '#f7c8a0', '#a0d9f7', '#d1f7a0', '#f7a0d1'];
 
             materials.forEach(material => {
                 if (material.data.layout.totalHeight === 0) return;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'cutting-layout-wrapper';
 
                 const container = document.createElement('div');
                 container.className = 'cutting-layout-container';
@@ -552,37 +360,78 @@
 
                 const layoutDiv = document.createElement('div');
                 layoutDiv.className = 'cutting-layout';
+                layoutDiv.style.width = `${material.data.materialWidth}px`;
+                layoutDiv.style.height = `${material.data.layout.totalHeight}px`;
 
-                const scale = Math.min(5, 800 / material.data.materialWidth); // Escala dinâmica
-                const totalLayoutHeight = material.data.layout.totalHeight;
-                layoutDiv.style.width = `${material.data.materialWidth * scale}px`;
-                layoutDiv.style.height = `${totalLayoutHeight * scale}px`;
+                const legendList = document.createElement('ul');
+                legendList.className = 'legend';
+                const pieceGroups = {};
 
                 material.data.layout.placedPieces.forEach(piece => {
+                    if (!pieceGroups[piece.nome]) {
+                        pieceGroups[piece.nome] = { color: colors[Object.keys(pieceGroups).length % colors.length], count: 0 };
+                    }
+                    pieceGroups[piece.nome].count++;
+
                     const pieceDiv = document.createElement('div');
                     pieceDiv.className = 'cutting-piece';
-                    pieceDiv.style.width = `${piece.w * scale}px`;
-                    pieceDiv.style.height = `${piece.h * scale}px`;
-                    pieceDiv.style.left = `${piece.x * scale}px`;
-                    pieceDiv.style.top = `${piece.y * scale}px`;
-                    pieceDiv.style.backgroundColor = colors[colorIndex % colors.length];
+                    pieceDiv.dataset.pieceName = piece.nome;
+                    pieceDiv.style.width = `${piece.w}px`;
+                    pieceDiv.style.height = `${piece.h}px`;
+                    pieceDiv.style.left = `${piece.x}px`;
+                    pieceDiv.style.top = `${piece.y}px`;
+                    pieceDiv.style.backgroundColor = pieceGroups[piece.nome].color;
                     
-                    const tooltip = document.createElement('span');
-                    tooltip.className = 'tooltip';
-                    tooltip.textContent = `${piece.nome}: ${piece.largura}cm x ${piece.comprimento}cm ${piece.rotacionada ? '(rotacionado)' : ''}`;
-                    pieceDiv.appendChild(tooltip);
-
+                    // Adiciona nome na peça se houver espaço
+                    if (piece.w > 50 && piece.h > 20) {
+                        pieceDiv.textContent = piece.nome;
+                    }
                     layoutDiv.appendChild(pieceDiv);
-                    colorIndex++;
+                });
+
+                Object.entries(pieceGroups).forEach(([name, { color, count }]) => {
+                    const li = document.createElement('li');
+                    li.className = 'legend-item';
+                    li.dataset.pieceName = name;
+                    li.innerHTML = `<div class="legend-color-box" style="background-color: ${color};"></div> <span><strong>${count}x</strong> - ${name}</span>`;
+                    legendList.appendChild(li);
                 });
 
                 container.appendChild(layoutDiv);
-                cuttingMapDiv.appendChild(container);
-            });
-        }
+                wrapper.appendChild(container);
+                wrapper.appendChild(legendList);
+                cuttingMapDiv.appendChild(wrapper);
 
-        function printShoppingList() {
-            window.print();
+                // Adiciona interatividade e responsividade
+                function setupInteractivity() {
+                    const allPieces = wrapper.querySelectorAll('.cutting-piece');
+                    const allLegendItems = wrapper.querySelectorAll('.legend-item');
+                    
+                    const highlight = (name, state) => {
+                        allPieces.forEach(p => { if (p.dataset.pieceName === name) p.classList.toggle('highlight', state); });
+                        allLegendItems.forEach(l => { if (l.dataset.pieceName === name) l.classList.toggle('highlight', state); });
+                    };
+
+                    allLegendItems.forEach(item => {
+                        item.addEventListener('mouseenter', () => highlight(item.dataset.pieceName, true));
+                        item.addEventListener('mouseleave', () => highlight(item.dataset.pieceName, false));
+                    });
+                    allPieces.forEach(piece => {
+                        piece.addEventListener('mouseenter', () => highlight(piece.dataset.pieceName, true));
+                        piece.addEventListener('mouseleave', () => highlight(piece.dataset.pieceName, false));
+                    });
+                }
+                
+                function makeResponsive() {
+                    const scale = Math.min(1, container.clientWidth / (material.data.materialWidth + 5));
+                    layoutDiv.style.transform = `scale(${scale})`;
+                    container.style.height = `${layoutDiv.offsetHeight * scale + 40}px`;
+                }
+
+                setupInteractivity();
+                makeResponsive();
+                window.addEventListener('resize', makeResponsive);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', calculateMaterials);
