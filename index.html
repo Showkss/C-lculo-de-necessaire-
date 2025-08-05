@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Produção de Necessaire - Versão Final</title>
+    <title>Calculadora de Produção de Necessaire - Versão PRO</title>
     <style>
         :root {
             --cor-primaria: #2c5530;
@@ -11,6 +11,7 @@
             --cor-destaque: #e8f5e8;
             --cor-fundo: #f5f5f5;
             --cor-texto-claro: white;
+            --cor-borda: #dee2e6;
         }
 
         body {
@@ -21,14 +22,7 @@
             background-color: var(--cor-fundo);
         }
         
-        .container {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
+        .container { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h1 { color: var(--cor-primaria); text-align: center; margin-bottom: 30px; font-size: 28px; }
         h2 { color: var(--cor-secundaria); border-bottom: 2px solid var(--cor-secundaria); padding-bottom: 10px; margin-top: 30px; }
         h3 { color: #5d8b6a; margin-top: 20px; }
@@ -39,12 +33,7 @@
         input[type="number"]:focus { outline: none; border-color: var(--cor-secundaria); }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
-        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        .result-table { width: 100%; border-collapse: collapse; margin: 15px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .result-table th { background-color: var(--cor-secundaria); color: var(--cor-texto-claro); padding: 12px; text-align: left; font-weight: bold; }
-        .result-table td { padding: 10px 12px; border-bottom: 1px solid #eee; }
-        .highlight { background-color: var(--cor-destaque); font-weight: bold; color: var(--cor-primaria); }
+        .card { background: #fff; border: 1px solid var(--cor-borda); border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         
         .calc-button { background-color: var(--cor-secundaria); color: var(--cor-texto-claro); border: none; padding: 12px 25px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; margin: 10px 5px; }
         .calc-button:hover { background-color: var(--cor-primaria); }
@@ -53,86 +42,54 @@
         .print-button:hover { background-color: #218838; }
         .print-button:before { content: "🖨️"; }
 
-        /* --- ESTILOS DO MAPA DE CORTE --- */
-        .cutting-section {
-            border: 2px solid var(--cor-secundaria);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            background-color: #fafafa;
-        }
-        .cutting-item-descriptive {
-            background: #e8f5e8;
-            padding: 8px 12px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border-left: 4px solid var(--cor-secundaria);
-            font-size: 14px;
-        }
+        /* --- RESUMO RESPONSIVO --- */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .summary-card { border: 1px solid var(--cor-borda); border-left: 4px solid var(--cor-secundaria); border-radius: 8px; padding: 15px; background-color: #fdfdfd; }
+        .summary-card h4 { margin: 0 0 10px 0; color: var(--cor-primaria); }
+        .summary-card p { margin: 4px 0; font-size: 14px; }
+        .summary-card .highlight { font-size: 16px; font-weight: bold; color: var(--cor-secundaria); }
 
-        .cutting-layout-wrapper {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-top: 20px;
-            align-items: flex-start;
-        }
-        @media (min-width: 992px) {
-            .cutting-layout-wrapper {
-                grid-template-columns: 3fr 1fr;
-            }
-        }
+        /* --- MAPA DE CORTE AVANÇADO --- */
+        .cutting-section { border: 2px solid var(--cor-secundaria); border-radius: 8px; padding: 15px; margin-top: 15px; background-color: #fafafa; }
+        .cutting-item-descriptive { background: var(--cor-destaque); padding: 8px 12px; margin: 5px 0; border-radius: 5px; border-left: 4px solid var(--cor-secundaria); font-size: 14px; }
+        
+        .cutting-layout-wrapper { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; align-items: flex-start; }
+        @media (min-width: 992px) { .cutting-layout-wrapper { grid-template-columns: 3fr 1fr; } }
 
-        .cutting-layout-container {
-            overflow-x: auto;
-        }
+        .cutting-layout-viewport { position: relative; border: 1px solid #ccc; background-color: #fff; overflow: auto; max-height: 600px; }
+        .cutting-layout-canvas-wrapper { position: relative; }
+        .cutting-layout-canvas { position: relative; background: #f0f0f0; background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px); }
+        
+        .ruler { position: absolute; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .ruler.horizontal { top: -30px; left: 0; height: 30px; }
+        .ruler.vertical { top: 0; left: -40px; width: 40px; }
+        .ruler .tick { position: absolute; background: #333; }
+        .ruler .tick.major { font-size: 10px; color: #333; }
+        .ruler.horizontal .tick { bottom: 0; width: 1px; }
+        .ruler.horizontal .tick.major { height: 15px; }
+        .ruler.horizontal .tick.minor { height: 8px; }
+        .ruler.vertical .tick { right: 0; height: 1px; }
+        .ruler.vertical .tick.major { width: 15px; text-align: right; padding-right: 2px; }
+        .ruler.vertical .tick.minor { width: 8px; }
 
-        .cutting-layout {
-            position: relative;
-            background: #f0f0f0;
-            border: 1px dashed #ccc;
-            transform-origin: top left;
-            transition: transform 0.3s ease;
-        }
+        .guide-line { position: absolute; background-color: var(--cor-primaria); z-index: 20; }
+        .guide-line.horizontal { width: 100%; height: 1px; }
+        .guide-line.vertical { height: 100%; width: 1px; }
 
-        .cutting-piece {
-            position: absolute;
-            box-sizing: border-box;
-            border: 1px solid rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-            color: rgba(0,0,0,0.7);
-            text-align: center;
-            overflow: hidden;
-            white-space: normal;
-            word-break: break-word;
-            padding: 2px;
-            transition: filter 0.2s ease, box-shadow 0.2s ease;
-        }
-        .cutting-piece.highlight {
-            filter: brightness(1.15);
-            box-shadow: 0 0 8px 2px yellow;
-            z-index: 10;
-        }
+        .info-box { position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 5px; border: 1px solid var(--cor-borda); font-size: 12px; z-index: 30; pointer-events: none; }
 
-        .legend { list-style: none; padding: 0; margin: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .cutting-piece { position: absolute; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: rgba(0,0,0,0.7); text-align: center; overflow: hidden; padding: 2px; transition: filter 0.2s ease, box-shadow 0.2s ease; }
+        .cutting-piece.highlight { filter: brightness(1.2); box-shadow: 0 0 10px 3px yellow; z-index: 10; }
+
+        .legend { list-style: none; padding: 0; margin: 0; border: 1px solid var(--cor-borda); border-radius: 8px; overflow: hidden; }
         .legend-item { display: flex; align-items: center; padding: 10px; font-size: 14px; border-bottom: 1px solid #eee; transition: background-color 0.2s ease; cursor: default; }
         .legend-item:last-child { border-bottom: none; }
         .legend-item.highlight { background-color: var(--cor-destaque); }
         .legend-color-box { width: 20px; height: 20px; margin-right: 10px; border: 1px solid rgba(0,0,0,0.2); flex-shrink: 0; }
         
         @media print {
-            body { background: white !important; font-size: 12pt; margin: 0; padding: 10px; }
-            .no-print { display: none !important; }
+            body { background: white !important; } .no-print { display: none !important; }
             .container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; page-break-inside: avoid; }
-            .result-table { box-shadow: none !important; border: 1px solid #333 !important; }
-            .result-table th { background-color: #f0f0f0 !important; color: #333 !important; border: 1px solid #333 !important; }
-            .result-table td { border: 1px solid #333 !important; }
-            .highlight { background-color: #f5f5f5 !important; color: #000 !important; }
-            h1, h2, h3 { color: #000 !important; }
         }
     </style>
 </head>
@@ -149,14 +106,14 @@
     <div id="print-area">
         <div class="container" id="summary-container">
             <h2>📊 Resumo de Materiais Necessários</h2>
-            <div id="summary"></div>
+            <div id="summary-grid"></div>
         </div>
         <div class="container" id="shopping-list-container">
             <h2>🛒 Lista de Compras</h2>
             <div style="text-align: center; margin-bottom: 20px;" class="no-print">
-                <button class="print-button" onclick="window.print()">Imprimir Lista de Compras</button>
+                <button class="print-button" onclick="window.print()">Imprimir</button>
             </div>
-            <div id="shopping-list"></div>
+            <div class="grid" id="shopping-list"></div>
         </div>
     </div>
 
@@ -168,31 +125,23 @@
     <script>
         const baseData = {
             tecido: [
-                {nome: 'Corpo atrás', largura: 15, comprimento: 26, quantidade: 1},
-                {nome: 'Corpo frente (baixo)', largura: 13, comprimento: 26, quantidade: 1},
-                {nome: 'Corpo frente (cima)', largura: 9, comprimento: 26, quantidade: 1},
-                {nome: 'Fundo', largura: 14, comprimento: 42, quantidade: 1},
-                {nome: 'Faixa de zíper', largura: 7, comprimento: 42, quantidade: 2},
-                {nome: 'Faixa para vivo', largura: 3, comprimento: 82, quantidade: 2},
-                {nome: 'Alça de mão', largura: 5, comprimento: 25, quantidade: 1},
-                {nome: 'Freios zíper bolsos', largura: 3, comprimento: 4, quantidade: 8},
+                {nome: 'Corpo atrás', largura: 15, comprimento: 26, quantidade: 1}, {nome: 'Corpo frente (baixo)', largura: 13, comprimento: 26, quantidade: 1},
+                {nome: 'Corpo frente (cima)', largura: 9, comprimento: 26, quantidade: 1}, {nome: 'Fundo', largura: 14, comprimento: 42, quantidade: 1},
+                {nome: 'Faixa de zíper', largura: 7, comprimento: 42, quantidade: 2}, {nome: 'Faixa para vivo', largura: 3, comprimento: 82, quantidade: 2},
+                {nome: 'Alça de mão', largura: 5, comprimento: 25, quantidade: 1}, {nome: 'Freios zíper bolsos', largura: 3, comprimento: 4, quantidade: 8},
                 {nome: 'Freios zíper fole', largura: 5, comprimento: 4, quantidade: 1}
             ],
             forro: [
-                {nome: 'Corpo atrás', largura: 15, comprimento: 26, quantidade: 3},
-                {nome: 'Corpo frente (baixo)', largura: 13, comprimento: 26, quantidade: 1},
-                {nome: 'Corpo frente (cima)', largura: 9, comprimento: 26, quantidade: 1},
-                {nome: 'Faixa de zíper', largura: 7, comprimento: 42, quantidade: 2},
+                {nome: 'Corpo atrás', largura: 15, comprimento: 26, quantidade: 3}, {nome: 'Corpo frente (baixo)', largura: 13, comprimento: 26, quantidade: 1},
+                {nome: 'Corpo frente (cima)', largura: 9, comprimento: 26, quantidade: 1}, {nome: 'Faixa de zíper', largura: 7, comprimento: 42, quantidade: 2},
                 {nome: 'Fundo', largura: 14, comprimento: 42, quantidade: 1}
             ],
             tela: [
-                {nome: 'Bolso interno 1', largura: 12, comprimento: 26, quantidade: 1},
-                {nome: 'Bolso interno 2', largura: 3, comprimento: 26, quantidade: 1},
+                {nome: 'Bolso interno 1', largura: 12, comprimento: 26, quantidade: 1}, {nome: 'Bolso interno 2', largura: 3, comprimento: 26, quantidade: 1},
                 {nome: 'Bolso interno 3', largura: 12, comprimento: 26, quantidade: 1}
             ],
             eva: [
-                {nome: 'Estrutura principal', largura: 11, comprimento: 22, quantidade: 1},
-                {nome: 'Estrutura fundo', largura: 10, comprimento: 38, quantidade: 1},
+                {nome: 'Estrutura principal', largura: 11, comprimento: 22, quantidade: 1}, {nome: 'Estrutura fundo', largura: 10, comprimento: 38, quantidade: 1},
                 {nome: 'Estrutura lateral', largura: 3, comprimento: 38, quantidade: 2}
             ]
         };
@@ -201,12 +150,10 @@
         function calculateMaterials() {
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
             const results = {
-                tecido: calculateMaterialNeeds('tecido', quantity, 140),
-                forro: calculateMaterialNeeds('forro', quantity, 140),
-                tela: calculateMaterialNeeds('tela', quantity, 140),
-                eva: calculateMaterialNeeds('eva', quantity, 130)
+                tecido: calculateMaterialNeeds('tecido', quantity, 140), forro: calculateMaterialNeeds('forro', quantity, 140),
+                tela: calculateMaterialNeeds('tela', quantity, 140), eva: calculateMaterialNeeds('eva', quantity, 130)
             };
-            displaySummary(results, quantity);
+            displaySummary(results);
             displayShoppingList(results, quantity);
             displayCuttingMap(results);
         }
@@ -214,127 +161,103 @@
         function calculateMaterialNeeds(type, quantity, materialWidth) {
             const items = baseData[type];
             let pieces = [];
-            let totalArea = 0;
             items.forEach(item => {
-                const totalPieces = item.quantidade * quantity;
-                totalArea += item.largura * item.comprimento * totalPieces;
-                for (let i = 0; i < totalPieces; i++) {
+                for (let i = 0; i < item.quantidade * quantity; i++) {
                     pieces.push({ ...item, id: `${type}-${item.nome}-${i}` });
                 }
             });
             const layout = optimizeLayout(pieces, materialWidth);
             const totalLength = layout.totalHeight;
             const finalLength = Math.ceil(totalLength * 1.08);
-            return { pieces, totalArea, totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
+            return { pieces, totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
         }
 
         function optimizeLayout(pieces, binWidth) {
-            // Algoritmo de empacotamento com rotação (confiável)
-            pieces.sort((a, b) => b.comprimento - a.comprimento || b.largura - a.largura);
+            // Algoritmo de empacotamento com rotação (MaxRects-BSSF)
+            let bins = [{ width: binWidth, height: Infinity, freeRects: [{ x: 0, y: 0, width: binWidth, height: Infinity }] }];
             let placedPieces = [];
             let totalHeight = 0;
-            let spaces = [{ x: 0, y: 0, w: binWidth }];
 
             for (const piece of pieces) {
-                let bestFit = null;
-                // Tenta encaixar com e sem rotação
-                const orientations = [
-                    { w: piece.largura, h: piece.comprimento, rotacionada: false },
-                    { w: piece.comprimento, h: piece.largura, rotacionada: true }
-                ];
+                let bestFit = { score: Infinity };
+                const orientations = piece.largura === piece.comprimento ? [{ w: piece.largura, h: piece.comprimento, rotacionada: false }] :
+                                     [{ w: piece.largura, h: piece.comprimento, rotacionada: false }, { w: piece.comprimento, h: piece.largura, rotacionada: true }];
 
-                for (let i = 0; i < spaces.length; i++) {
-                    const space = spaces[i];
-                    for (const p of orientations) {
-                        if (p.w <= space.w) {
-                            const score = space.y + p.h; // Prioriza o menor aumento na altura total
-                            if (!bestFit || score < bestFit.score) {
-                                bestFit = { spaceIndex: i, piece: { ...piece, ...p }, score: score, x: space.x, y: space.y };
+                for (const p of orientations) {
+                    for (let i = 0; i < bins[0].freeRects.length; i++) {
+                        const rect = bins[0].freeRects[i];
+                        if (p.w <= rect.width && p.h <= rect.height) {
+                            const score = rect.y + p.h; // Short Side Fit
+                            if (score < bestFit.score) {
+                                bestFit = { rectIndex: i, piece: { ...piece, ...p }, score: score, x: rect.x, y: rect.y };
                             }
                         }
                     }
                 }
 
-                if (bestFit) {
-                    const { spaceIndex, piece, x, y } = bestFit;
+                if (bestFit.rectIndex !== undefined) {
+                    const { rectIndex, piece, x, y } = bestFit;
                     placedPieces.push({ ...piece, x, y });
                     totalHeight = Math.max(totalHeight, y + piece.h);
                     
-                    const space = spaces.splice(spaceIndex, 1)[0];
-                    // Adiciona novo espaço à direita da peça colocada
-                    if (space.w - piece.w > 0) {
-                        spaces.push({ x: x + piece.w, y: y, w: space.w - piece.w });
-                    }
-                    // Adiciona um novo espaço abaixo da peça
-                    spaces.push({ x: 0, y: y + piece.h, w: binWidth });
+                    const oldRect = bins[0].freeRects.splice(rectIndex, 1)[0];
+                    // Split the remaining space
+                    const rightSplit = { x: x + piece.w, y: y, width: oldRect.width - piece.w, height: oldRect.height };
+                    if (rightSplit.width > 0) bins[0].freeRects.push(rightSplit);
                     
-                    // Consolida e ordena os espaços para o próximo encaixe
-                    spaces = spaces.filter(s => s.w > 0);
-                    spaces.sort((a, b) => a.y - b.y || a.x - b.x);
+                    const bottomSplit = { x: x, y: y + piece.h, width: piece.w, height: oldRect.height - piece.h };
+                    if (bottomSplit.height > 0) bins[0].freeRects.push(bottomSplit);
+
+                    // Prune contained rectangles
+                    bins[0].freeRects = bins[0].freeRects.filter((r1, i1) => !bins[0].freeRects.some((r2, i2) => i1 !== i2 && r2.x <= r1.x && r2.y <= r1.y && r2.x + r2.width >= r1.x + r1.width && r2.y + r2.height >= r1.y + r1.height));
+                    bins[0].freeRects.sort((a, b) => a.y - b.y || a.x - b.x);
                 }
             }
-            
-            // Recalcula a altura final com base na peça mais alta
-            totalHeight = placedPieces.reduce((max, p) => Math.max(max, p.y + p.h), 0);
             const totalPieceArea = placedPieces.reduce((acc, p) => acc + (p.w * p.h), 0);
             const efficiency = binWidth * totalHeight > 0 ? (totalPieceArea / (binWidth * totalHeight) * 100).toFixed(1) : 0;
-
             return { placedPieces, totalHeight, efficiency };
         }
 
-        function displaySummary(results, quantity) {
-            document.getElementById('summary').innerHTML = `
-                <table class="result-table">
-                    <thead><tr><th>Material</th><th>Metragem Otimizada</th><th>Comprar (c/ margem 8%)</th><th>Aproveitamento</th></tr></thead>
-                    <tbody>
-                        <tr><td>Tecido Principal</td><td>${(results.tecido.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.tecido.finalMeters}m</td><td>${results.tecido.layout.efficiency}%</td></tr>
-                        <tr><td>Forro</td><td>${(results.forro.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.forro.finalMeters}m</td><td>${results.forro.layout.efficiency}%</td></tr>
-                        <tr><td>Tela Voley</td><td>${(results.tela.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.tela.finalMeters}m</td><td>${results.tela.layout.efficiency}%</td></tr>
-                        <tr><td>EVA</td><td>${(results.eva.totalLength/100).toFixed(2)}m</td><td class="highlight">${results.eva.finalMeters}m</td><td>${results.eva.layout.efficiency}%</td></tr>
-                    </tbody>
-                </table>
-                <h3>Outros Materiais (para ${quantity} necessaire${quantity > 1 ? 's' : ''})</h3>
-                <table class="result-table">
-                    <tbody>
-                        <tr><td>Fecho nº5</td><td class="highlight">${(outros.fecho * quantity).toFixed(2)}m</td></tr>
-                        <tr><td>Cursores</td><td class="highlight">${outros.cursor * quantity} pçs</td></tr>
-                        <tr><td>Viés</td><td class="highlight">${(outros.vies * quantity).toFixed(2)}m</td></tr>
-                        <tr><td>Cadarço para alça</td><td class="highlight">${(outros.cadaco_alca * quantity).toFixed(2)}m</td></tr>
-                        <tr><td>Puxadores</td><td class="highlight">${outros.puxador * quantity} pçs</td></tr>
-                        <tr><td>Cadarço para freios</td><td class="highlight">${(outros.cadaco_freio * quantity).toFixed(2)}m</td></tr>
-                    </tbody>
-                </table>`;
+        function displaySummary(results) {
+            const grid = document.getElementById('summary-grid');
+            grid.innerHTML = '';
+            const materials = [
+                { name: 'Tecido Principal', data: results.tecido }, { name: 'Forro', data: results.forro },
+                { name: 'Tela Voley', data: results.tela }, { name: 'EVA', data: results.eva }
+            ];
+            materials.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'summary-card';
+                card.innerHTML = `
+                    <h4>${m.name}</h4>
+                    <p>Metragem Otimizada: <strong>${(m.data.totalLength/100).toFixed(2)}m</strong></p>
+                    <p>Comprar (c/ margem 8%): <strong class="highlight">${m.data.finalMeters}m</strong></p>
+                    <p>Aproveitamento do Corte: <strong>${m.data.layout.efficiency}%</strong></p>`;
+                grid.appendChild(card);
+            });
         }
 
         function displayShoppingList(results, quantity) {
             document.getElementById('shopping-list').innerHTML = `
-                <div class="grid">
-                    <div class="card">
-                        <h3>🧵 Tecidos e Estrutura</h3>
-                        <table class="result-table">
-                            <thead><tr><th>Material</th><th>Quantidade</th></tr></thead>
-                            <tbody>
-                                <tr><td>Tecido Principal</td><td class="highlight">${results.tecido.finalMeters}m</td></tr>
-                                <tr><td>Forro</td><td class="highlight">${results.forro.finalMeters}m</td></tr>
-                                <tr><td>Tela Voley</td><td class="highlight">${results.tela.finalMeters}m</td></tr>
-                                <tr><td>EVA (130cm largura)</td><td class="highlight">${results.eva.finalMeters}m</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="card">
-                        <h3>✨ Aviamentos</h3>
-                        <table class="result-table">
-                            <thead><tr><th>Item</th><th>Quantidade</th></tr></thead>
-                            <tbody>
-                                <tr><td>Fecho nº5</td><td class="highlight">${(outros.fecho * quantity).toFixed(2)}m</td></tr>
-                                <tr><td>Cursores</td><td class="highlight">${outros.cursor * quantity} pçs</td></tr>
-                                <tr><td>Viés</td><td class="highlight">${(outros.vies * quantity).toFixed(2)}m</td></tr>
-                                <tr><td>Cadarço para alça</td><td class="highlight">${(outros.cadaco_alca * quantity).toFixed(2)}m</td></tr>
-                                <tr><td>Puxadores</td><td class="highlight">${outros.puxador * quantity} pçs</td></tr>
-                                <tr><td>Cadarço para freios</td><td class="highlight">${(outros.cadaco_freio * quantity).toFixed(2)}m</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="card">
+                    <h3>🧵 Tecidos e Estrutura</h3>
+                    <ul class="list-unstyled">
+                        <li>Tecido Principal: <strong class="highlight">${results.tecido.finalMeters}m</strong></li>
+                        <li>Forro: <strong class="highlight">${results.forro.finalMeters}m</strong></li>
+                        <li>Tela Voley: <strong class="highlight">${results.tela.finalMeters}m</strong></li>
+                        <li>EVA (130cm): <strong class="highlight">${results.eva.finalMeters}m</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>✨ Aviamentos</h3>
+                    <ul class="list-unstyled">
+                        <li>Fecho nº5: <strong class="highlight">${(outros.fecho * quantity).toFixed(2)}m</strong></li>
+                        <li>Cursores: <strong class="highlight">${outros.cursor * quantity} pçs</strong></li>
+                        <li>Viés: <strong class="highlight">${(outros.vies * quantity).toFixed(2)}m</strong></li>
+                        <li>Cadarço p/ alça: <strong class="highlight">${(outros.cadaco_alca * quantity).toFixed(2)}m</strong></li>
+                        <li>Puxadores: <strong class="highlight">${outros.puxador * quantity} pçs</strong></li>
+                        <li>Cadarço p/ freios: <strong class="highlight">${(outros.cadaco_freio * quantity).toFixed(2)}m</strong></li>
+                    </ul>
                 </div>`;
         }
 
@@ -345,7 +268,7 @@
                 { name: 'Tecido Principal', data: results.tecido }, { name: 'Forro', data: results.forro },
                 { name: 'Tela Voley', data: results.tela }, { name: 'EVA', data: results.eva }
             ];
-            const colors = ['#a8d8b4', '#f5d79e', '#a1c9f4', '#f4a1b9', '#c3a1f4', '#f4b9a1', '#f7c8a0', '#a0d9f7', '#d1f7a0', '#f7a0d1'];
+            const colors = ['#a8d8b4', '#f5d79e', '#a1c9f4', '#f4a1b9', '#c3a1f4', '#f4b9a1', '#f7c8a0', '#a0d9f7'];
 
             materials.forEach(material => {
                 if (material.data.layout.totalHeight === 0) return;
@@ -358,7 +281,6 @@
                     pieceGroups[piece.nome].count++;
                 });
 
-                // --- 1. Mapa Descritivo ---
                 const descriptiveSection = document.createElement('div');
                 descriptiveSection.className = 'cutting-section';
                 descriptiveSection.innerHTML = `<h3>${material.name} - Lista de Corte</h3>`;
@@ -367,78 +289,106 @@
                 });
                 cuttingMapDiv.appendChild(descriptiveSection);
 
-                // --- 2. Mapa Visual Interativo ---
                 const visualSection = document.createElement('div');
                 visualSection.className = 'cutting-section';
-                visualSection.innerHTML = `<h3>${material.name} - Mapa Visual</h3>`;
+                visualSection.innerHTML = `<h3>${material.name} - Mapa Visual de Alta Precisão</h3>`;
                 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'cutting-layout-wrapper';
 
-                const container = document.createElement('div');
-                container.className = 'cutting-layout-container';
+                const viewport = document.createElement('div');
+                viewport.className = 'cutting-layout-viewport';
+                const canvasWrapper = document.createElement('div');
+                canvasWrapper.className = 'cutting-layout-canvas-wrapper';
+                const canvas = document.createElement('div');
+                canvas.className = 'cutting-layout-canvas';
+                
+                const scale = 5; // Aumenta a escala para melhor visualização
+                const canvasWidth = material.data.materialWidth * scale;
+                const canvasHeight = material.data.layout.totalHeight * scale;
+                canvas.style.width = `${canvasWidth}px`;
+                canvas.style.height = `${canvasHeight}px`;
+                canvas.style.backgroundSize = `${10 * scale}px ${10 * scale}px`;
 
-                const layoutDiv = document.createElement('div');
-                layoutDiv.className = 'cutting-layout';
-                layoutDiv.style.width = `${material.data.materialWidth}px`;
-                layoutDiv.style.height = `${material.data.layout.totalHeight}px`;
+                // Add Rulers, Guides, InfoBox
+                const hRuler = document.createElement('div'); hRuler.className = 'ruler horizontal';
+                const vRuler = document.createElement('div'); vRuler.className = 'ruler vertical';
+                const hGuide = document.createElement('div'); hGuide.className = 'guide-line horizontal'; hGuide.style.display = 'none';
+                const vGuide = document.createElement('div'); vGuide.className = 'guide-line vertical'; vGuide.style.display = 'none';
+                const infoBox = document.createElement('div'); infoBox.className = 'info-box'; infoBox.style.display = 'none';
 
-                const legendList = document.createElement('ul');
-                legendList.className = 'legend';
+                for(let i = 0; i <= material.data.materialWidth; i+=2) {
+                    const isMajor = i % 10 === 0;
+                    const tick = document.createElement('div'); tick.className = `tick ${isMajor ? 'major' : 'minor'}`;
+                    tick.style.left = `${i * scale}px`;
+                    if(isMajor) tick.textContent = i;
+                    hRuler.appendChild(tick);
+                }
+                for(let i = 0; i <= material.data.layout.totalHeight; i+=2) {
+                    const isMajor = i % 10 === 0;
+                    const tick = document.createElement('div'); tick.className = `tick ${isMajor ? 'major' : 'minor'}`;
+                    tick.style.top = `${i * scale}px`;
+                    if(isMajor) tick.textContent = i;
+                    vRuler.appendChild(tick);
+                }
 
                 material.data.layout.placedPieces.forEach(piece => {
                     const pieceDiv = document.createElement('div');
                     pieceDiv.className = 'cutting-piece';
                     pieceDiv.dataset.pieceName = piece.nome;
-                    pieceDiv.style.width = `${piece.w}px`;
-                    pieceDiv.style.height = `${piece.h}px`;
-                    pieceDiv.style.left = `${piece.x}px`;
-                    pieceDiv.style.top = `${piece.y}px`;
+                    pieceDiv.style.width = `${piece.w * scale}px`;
+                    pieceDiv.style.height = `${piece.h * scale}px`;
+                    pieceDiv.style.left = `${piece.x * scale}px`;
+                    pieceDiv.style.top = `${piece.y * scale}px`;
                     pieceDiv.style.backgroundColor = pieceGroups[piece.nome].color;
-                    if (piece.w > 50 && piece.h > 20) pieceDiv.textContent = piece.nome;
-                    layoutDiv.appendChild(pieceDiv);
+                    if (piece.w * scale > 100 && piece.h * scale > 25) pieceDiv.textContent = piece.nome;
+                    canvas.appendChild(pieceDiv);
                 });
 
+                const legendList = document.createElement('ul');
+                legendList.className = 'legend';
                 Object.entries(pieceGroups).forEach(([name, { color, count }]) => {
-                    const li = document.createElement('li');
-                    li.className = 'legend-item';
-                    li.dataset.pieceName = name;
+                    const li = document.createElement('li'); li.className = 'legend-item'; li.dataset.pieceName = name;
                     li.innerHTML = `<div class="legend-color-box" style="background-color: ${color};"></div> <span><strong>${count}x</strong> - ${name}</span>`;
                     legendList.appendChild(li);
                 });
 
-                container.appendChild(layoutDiv);
-                wrapper.appendChild(container);
+                canvasWrapper.append(hRuler, vRuler, canvas, hGuide, vGuide, infoBox);
+                viewport.appendChild(canvasWrapper);
+                wrapper.appendChild(viewport);
                 wrapper.appendChild(legendList);
                 visualSection.appendChild(wrapper);
                 cuttingMapDiv.appendChild(visualSection);
 
-                function setupInteractivity() {
-                    const allPieces = wrapper.querySelectorAll('.cutting-piece');
-                    const allLegendItems = wrapper.querySelectorAll('.legend-item');
-                    const highlight = (name, state) => {
-                        allPieces.forEach(p => { if (p.dataset.pieceName === name) p.classList.toggle('highlight', state); });
-                        allLegendItems.forEach(l => { if (l.dataset.pieceName === name) l.classList.toggle('highlight', state); });
-                    };
-                    allLegendItems.forEach(item => {
-                        item.addEventListener('mouseenter', () => highlight(item.dataset.pieceName, true));
-                        item.addEventListener('mouseleave', () => highlight(item.dataset.pieceName, false));
+                // Interactivity
+                const allPieces = wrapper.querySelectorAll('.cutting-piece');
+                const allLegendItems = wrapper.querySelectorAll('.legend-item');
+                const highlight = (name, state) => {
+                    allPieces.forEach(p => { if (p.dataset.pieceName === name) p.classList.toggle('highlight', state); });
+                    allLegendItems.forEach(l => { if (l.dataset.pieceName === name) l.classList.toggle('highlight', state); });
+                };
+                allLegendItems.forEach(item => {
+                    item.addEventListener('mouseenter', () => highlight(item.dataset.pieceName, true));
+                    item.addEventListener('mouseleave', () => highlight(item.dataset.pieceName, false));
+                });
+                canvas.addEventListener('mousemove', e => {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    hGuide.style.top = `${y}px`; vGuide.style.left = `${x}px`;
+                    infoBox.textContent = `X: ${(x/scale).toFixed(1)}cm, Y: ${(y/scale).toFixed(1)}cm`;
+                });
+                canvas.addEventListener('mouseenter', () => { hGuide.style.display = 'block'; vGuide.style.display = 'block'; infoBox.style.display = 'block'; });
+                canvas.addEventListener('mouseleave', () => { hGuide.style.display = 'none'; vGuide.style.display = 'none'; infoBox.style.display = 'none'; highlight(null, false); });
+                allPieces.forEach(p => {
+                    p.addEventListener('mouseenter', e => {
+                        highlight(p.dataset.pieceName, true);
+                        const pieceData = material.data.layout.placedPieces.find(pd => pd.id === e.target.dataset.id);
+                        infoBox.innerHTML = `<strong>${p.dataset.pieceName}</strong><br>
+                                             Dim: ${parseFloat(p.style.width)/scale} x ${parseFloat(p.style.height)/scale} cm<br>
+                                             Pos: X:${(parseFloat(p.style.left)/scale).toFixed(1)}, Y:${(parseFloat(p.style.top)/scale).toFixed(1)}`;
                     });
-                    allPieces.forEach(piece => {
-                        piece.addEventListener('mouseenter', () => highlight(piece.dataset.pieceName, true));
-                        piece.addEventListener('mouseleave', () => highlight(piece.dataset.pieceName, false));
-                    });
-                }
-                
-                function makeResponsive() {
-                    const scale = Math.min(1, container.clientWidth / (material.data.materialWidth + 5));
-                    layoutDiv.style.transform = `scale(${scale})`;
-                    container.style.height = `${layoutDiv.offsetHeight * scale + 20}px`;
-                }
-
-                setupInteractivity();
-                makeResponsive();
-                new ResizeObserver(makeResponsive).observe(container);
+                });
             });
         }
 
