@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Produção de Necessaire - Versão PRO</title>
+    <title>Calculadora de Produção de Necessaire - Layout Inteligente</title>
     <style>
         :root {
             --cor-primaria: #2c5530;
@@ -60,7 +60,7 @@
         .cutting-layout-canvas-wrapper { position: relative; }
         .cutting-layout-canvas { position: relative; background: #f0f0f0; background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px); }
         
-        .ruler { position: absolute; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .ruler { position: absolute; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); box-shadow: 0 0 5px rgba(0,0,0,0.1); z-index: 15; }
         .ruler.horizontal { top: -30px; left: 0; height: 30px; }
         .ruler.vertical { top: 0; left: -40px; width: 40px; }
         .ruler .tick { position: absolute; background: #333; }
@@ -160,20 +160,27 @@
 
         function calculateMaterialNeeds(type, quantity, materialWidth) {
             const items = baseData[type];
-            let pieces = [];
+            let allPieces = [];
             items.forEach(item => {
                 for (let i = 0; i < item.quantidade * quantity; i++) {
-                    pieces.push({ ...item, id: `${type}-${item.nome}-${i}` });
+                    allPieces.push({ ...item, id: `${type}-${item.nome}-${i}` });
                 }
             });
-            const layout = optimizeLayout(pieces, materialWidth);
+
+            // --- ORDENAÇÃO INTELIGENTE ---
+            const edgePieces = allPieces.filter(p => p.comprimento / p.largura >= 10 || p.largura / p.comprimento >= 10);
+            const mainPieces = allPieces.filter(p => !edgePieces.includes(p));
+            mainPieces.sort((a, b) => (b.largura * b.comprimento) - (a.largura * a.comprimento));
+            const sortedPieces = [...edgePieces, ...mainPieces];
+            // --- FIM DA ORDENAÇÃO ---
+
+            const layout = optimizeLayout(sortedPieces, materialWidth);
             const totalLength = layout.totalHeight;
             const finalLength = Math.ceil(totalLength * 1.08);
-            return { pieces, totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
+            return { pieces: sortedPieces, totalLength, finalLength, finalMeters: (finalLength / 100).toFixed(2), layout, materialWidth };
         }
 
         function optimizeLayout(pieces, binWidth) {
-            // Algoritmo de empacotamento com rotação (MaxRects-BSSF)
             let bins = [{ width: binWidth, height: Infinity, freeRects: [{ x: 0, y: 0, width: binWidth, height: Infinity }] }];
             let placedPieces = [];
             let totalHeight = 0;
@@ -187,7 +194,7 @@
                     for (let i = 0; i < bins[0].freeRects.length; i++) {
                         const rect = bins[0].freeRects[i];
                         if (p.w <= rect.width && p.h <= rect.height) {
-                            const score = rect.y + p.h; // Short Side Fit
+                            const score = rect.y + p.h;
                             if (score < bestFit.score) {
                                 bestFit = { rectIndex: i, piece: { ...piece, ...p }, score: score, x: rect.x, y: rect.y };
                             }
@@ -201,14 +208,24 @@
                     totalHeight = Math.max(totalHeight, y + piece.h);
                     
                     const oldRect = bins[0].freeRects.splice(rectIndex, 1)[0];
-                    // Split the remaining space
-                    const rightSplit = { x: x + piece.w, y: y, width: oldRect.width - piece.w, height: oldRect.height };
-                    if (rightSplit.width > 0) bins[0].freeRects.push(rightSplit);
-                    
-                    const bottomSplit = { x: x, y: y + piece.h, width: piece.w, height: oldRect.height - piece.h };
-                    if (bottomSplit.height > 0) bins[0].freeRects.push(bottomSplit);
+                    const splitHorizontally = (target, p) => {
+                        const newRects = [];
+                        if (p.y > target.y) newRects.push({x: target.x, y: target.y, width: target.width, height: p.y - target.y});
+                        if (p.y + p.h < target.y + target.height) newRects.push({x: target.x, y: p.y + p.h, width: target.width, height: (target.y + target.height) - (p.y + p.h)});
+                        if (p.x > target.x) newRects.push({x: target.x, y: p.y, width: p.x - target.x, height: p.h});
+                        if (p.x + p.w < target.x + target.width) newRects.push({x: p.x + p.w, y: p.y, width: (target.x + target.width) - (p.x + p.w), height: p.h});
+                        return newRects;
+                    };
 
-                    // Prune contained rectangles
+                    for (let i = bins[0].freeRects.length - 1; i >= 0; i--) {
+                        const rect = bins[0].freeRects[i];
+                        const intersection = !(rect.x >= x + piece.w || rect.x + rect.width <= x || rect.y >= y + piece.h || rect.y + rect.height <= y);
+                        if (intersection) {
+                            bins[0].freeRects.splice(i, 1);
+                            bins[0].freeRects.push(...splitHorizontally(rect, {x, y, w: piece.w, h: piece.h}));
+                        }
+                    }
+                    
                     bins[0].freeRects = bins[0].freeRects.filter((r1, i1) => !bins[0].freeRects.some((r2, i2) => i1 !== i2 && r2.x <= r1.x && r2.y <= r1.y && r2.x + r2.width >= r1.x + r1.width && r2.y + r2.height >= r1.y + r1.height));
                     bins[0].freeRects.sort((a, b) => a.y - b.y || a.x - b.x);
                 }
@@ -241,7 +258,7 @@
             document.getElementById('shopping-list').innerHTML = `
                 <div class="card">
                     <h3>🧵 Tecidos e Estrutura</h3>
-                    <ul class="list-unstyled">
+                    <ul style="list-style: none; padding: 0;">
                         <li>Tecido Principal: <strong class="highlight">${results.tecido.finalMeters}m</strong></li>
                         <li>Forro: <strong class="highlight">${results.forro.finalMeters}m</strong></li>
                         <li>Tela Voley: <strong class="highlight">${results.tela.finalMeters}m</strong></li>
@@ -250,7 +267,7 @@
                 </div>
                 <div class="card">
                     <h3>✨ Aviamentos</h3>
-                    <ul class="list-unstyled">
+                    <ul style="list-style: none; padding: 0;">
                         <li>Fecho nº5: <strong class="highlight">${(outros.fecho * quantity).toFixed(2)}m</strong></li>
                         <li>Cursores: <strong class="highlight">${outros.cursor * quantity} pçs</strong></li>
                         <li>Viés: <strong class="highlight">${(outros.vies * quantity).toFixed(2)}m</strong></li>
@@ -274,18 +291,18 @@
                 if (material.data.layout.totalHeight === 0) return;
 
                 const pieceGroups = {};
-                material.data.layout.placedPieces.forEach(piece => {
+                material.data.pieces.forEach(piece => {
                     if (!pieceGroups[piece.nome]) {
                         pieceGroups[piece.nome] = { color: colors[Object.keys(pieceGroups).length % colors.length], count: 0, w: piece.largura, h: piece.comprimento };
                     }
-                    pieceGroups[piece.nome].count++;
                 });
+                material.data.layout.placedPieces.forEach(p => pieceGroups[p.nome].count++);
 
                 const descriptiveSection = document.createElement('div');
                 descriptiveSection.className = 'cutting-section';
                 descriptiveSection.innerHTML = `<h3>${material.name} - Lista de Corte</h3>`;
                 Object.entries(pieceGroups).forEach(([name, { count, w, h }]) => {
-                    descriptiveSection.innerHTML += `<div class="cutting-item-descriptive"><strong>${count}x</strong> - ${name} (medida: ${w}cm x ${h}cm)</div>`;
+                    if(count > 0) descriptiveSection.innerHTML += `<div class="cutting-item-descriptive"><strong>${count}x</strong> - ${name} (medida: ${w}cm x ${h}cm)</div>`;
                 });
                 cuttingMapDiv.appendChild(descriptiveSection);
 
@@ -293,24 +310,17 @@
                 visualSection.className = 'cutting-section';
                 visualSection.innerHTML = `<h3>${material.name} - Mapa Visual de Alta Precisão</h3>`;
                 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'cutting-layout-wrapper';
-
-                const viewport = document.createElement('div');
-                viewport.className = 'cutting-layout-viewport';
-                const canvasWrapper = document.createElement('div');
-                canvasWrapper.className = 'cutting-layout-canvas-wrapper';
-                const canvas = document.createElement('div');
-                canvas.className = 'cutting-layout-canvas';
+                const wrapper = document.createElement('div'); wrapper.className = 'cutting-layout-wrapper';
+                const viewport = document.createElement('div'); viewport.className = 'cutting-layout-viewport';
+                const canvasWrapper = document.createElement('div'); canvasWrapper.className = 'cutting-layout-canvas-wrapper';
+                const canvas = document.createElement('div'); canvas.className = 'cutting-layout-canvas';
                 
-                const scale = 5; // Aumenta a escala para melhor visualização
+                const scale = 5;
                 const canvasWidth = material.data.materialWidth * scale;
                 const canvasHeight = material.data.layout.totalHeight * scale;
-                canvas.style.width = `${canvasWidth}px`;
-                canvas.style.height = `${canvasHeight}px`;
+                canvas.style.width = `${canvasWidth}px`; canvas.style.height = `${canvasHeight}px`;
                 canvas.style.backgroundSize = `${10 * scale}px ${10 * scale}px`;
 
-                // Add Rulers, Guides, InfoBox
                 const hRuler = document.createElement('div'); hRuler.className = 'ruler horizontal';
                 const vRuler = document.createElement('div'); vRuler.className = 'ruler vertical';
                 const hGuide = document.createElement('div'); hGuide.className = 'guide-line horizontal'; hGuide.style.display = 'none';
@@ -320,15 +330,13 @@
                 for(let i = 0; i <= material.data.materialWidth; i+=2) {
                     const isMajor = i % 10 === 0;
                     const tick = document.createElement('div'); tick.className = `tick ${isMajor ? 'major' : 'minor'}`;
-                    tick.style.left = `${i * scale}px`;
-                    if(isMajor) tick.textContent = i;
+                    tick.style.left = `${i * scale}px`; if(isMajor) tick.textContent = i;
                     hRuler.appendChild(tick);
                 }
-                for(let i = 0; i <= material.data.layout.totalHeight; i+=2) {
+                for(let i = 0; i <= Math.ceil(material.data.layout.totalHeight); i+=2) {
                     const isMajor = i % 10 === 0;
                     const tick = document.createElement('div'); tick.className = `tick ${isMajor ? 'major' : 'minor'}`;
-                    tick.style.top = `${i * scale}px`;
-                    if(isMajor) tick.textContent = i;
+                    tick.style.top = `${i * scale}px`; if(isMajor) tick.textContent = i;
                     vRuler.appendChild(tick);
                 }
 
@@ -336,21 +344,21 @@
                     const pieceDiv = document.createElement('div');
                     pieceDiv.className = 'cutting-piece';
                     pieceDiv.dataset.pieceName = piece.nome;
-                    pieceDiv.style.width = `${piece.w * scale}px`;
-                    pieceDiv.style.height = `${piece.h * scale}px`;
-                    pieceDiv.style.left = `${piece.x * scale}px`;
-                    pieceDiv.style.top = `${piece.y * scale}px`;
+                    pieceDiv.dataset.id = piece.id;
+                    pieceDiv.style.width = `${piece.w * scale}px`; pieceDiv.style.height = `${piece.h * scale}px`;
+                    pieceDiv.style.left = `${piece.x * scale}px`; pieceDiv.style.top = `${piece.y * scale}px`;
                     pieceDiv.style.backgroundColor = pieceGroups[piece.nome].color;
                     if (piece.w * scale > 100 && piece.h * scale > 25) pieceDiv.textContent = piece.nome;
                     canvas.appendChild(pieceDiv);
                 });
 
-                const legendList = document.createElement('ul');
-                legendList.className = 'legend';
+                const legendList = document.createElement('ul'); legendList.className = 'legend';
                 Object.entries(pieceGroups).forEach(([name, { color, count }]) => {
-                    const li = document.createElement('li'); li.className = 'legend-item'; li.dataset.pieceName = name;
-                    li.innerHTML = `<div class="legend-color-box" style="background-color: ${color};"></div> <span><strong>${count}x</strong> - ${name}</span>`;
-                    legendList.appendChild(li);
+                    if(count > 0) {
+                        const li = document.createElement('li'); li.className = 'legend-item'; li.dataset.pieceName = name;
+                        li.innerHTML = `<div class="legend-color-box" style="background-color: ${color};"></div> <span><strong>${count}x</strong> - ${name}</span>`;
+                        legendList.appendChild(li);
+                    }
                 });
 
                 canvasWrapper.append(hRuler, vRuler, canvas, hGuide, vGuide, infoBox);
@@ -360,7 +368,6 @@
                 visualSection.appendChild(wrapper);
                 cuttingMapDiv.appendChild(visualSection);
 
-                // Interactivity
                 const allPieces = wrapper.querySelectorAll('.cutting-piece');
                 const allLegendItems = wrapper.querySelectorAll('.legend-item');
                 const highlight = (name, state) => {
@@ -373,8 +380,8 @@
                 });
                 canvas.addEventListener('mousemove', e => {
                     const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
+                    const x = e.clientX - rect.left + viewport.scrollLeft;
+                    const y = e.clientY - rect.top + viewport.scrollTop;
                     hGuide.style.top = `${y}px`; vGuide.style.left = `${x}px`;
                     infoBox.textContent = `X: ${(x/scale).toFixed(1)}cm, Y: ${(y/scale).toFixed(1)}cm`;
                 });
@@ -382,17 +389,4 @@
                 canvas.addEventListener('mouseleave', () => { hGuide.style.display = 'none'; vGuide.style.display = 'none'; infoBox.style.display = 'none'; highlight(null, false); });
                 allPieces.forEach(p => {
                     p.addEventListener('mouseenter', e => {
-                        highlight(p.dataset.pieceName, true);
-                        const pieceData = material.data.layout.placedPieces.find(pd => pd.id === e.target.dataset.id);
-                        infoBox.innerHTML = `<strong>${p.dataset.pieceName}</strong><br>
-                                             Dim: ${parseFloat(p.style.width)/scale} x ${parseFloat(p.style.height)/scale} cm<br>
-                                             Pos: X:${(parseFloat(p.style.left)/scale).toFixed(1)}, Y:${(parseFloat(p.style.top)/scale).toFixed(1)}`;
-                    });
-                });
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', calculateMaterials);
-    </script>
-</body>
-</html>
+                        highlight(p.dataset
